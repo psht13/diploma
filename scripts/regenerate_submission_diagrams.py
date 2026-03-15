@@ -177,15 +177,15 @@ def render_component_diagram(path: Path) -> None:
 
     boxes = {
         "student": ((100, 520, 320, 650), "Студент", "", COLORS["gold_fill"], COLORS["gold_line"]),
-        "ui": ((420, 465, 760, 705), "Chat UI", "Робоче навчальне середовище", COLORS["blue_fill"], COLORS["blue_line"]),
-        "memory": ((920, 240, 1260, 430), "SessionMemory", "UserState, історія спроб,\nпоточна вправа", COLORS["mint_fill"], COLORS["mint_line"]),
-        "policy": ((1450, 240, 1810, 430), "TutorPolicy", "Вибір педагогічної дії\nта рівня підказки", COLORS["rose_fill"], COLORS["rose_line"]),
-        "generator": ((920, 560, 1260, 730), "ExerciseGenerator", "Генерація вправи\nабо резервний сценарій", COLORS["violet_fill"], COLORS["violet_line"]),
-        "feedback": ((1450, 560, 1810, 730), "FeedbackEvaluator", "Адаптивний фідбек\nабо резервне пояснення", COLORS["violet_fill"], COLORS["violet_line"]),
-        "runner": ((920, 860, 1260, 1030), "ClientTestRunner", "Підготовка тестів\nі runResult", COLORS["rose_fill"], COLORS["rose_line"]),
+        "ui": ((420, 465, 760, 705), "Інтерфейс користувача", "Робоче навчальне\nсередовище", COLORS["blue_fill"], COLORS["blue_line"]),
+        "memory": ((920, 240, 1260, 430), "Пам'ять сесії", "Стан студента, історія спроб,\nпоточна вправа", COLORS["mint_fill"], COLORS["mint_line"]),
+        "policy": ((1450, 240, 1810, 430), "Педагогічна політика", "Вибір педагогічної дії\nта рівня підказки", COLORS["rose_fill"], COLORS["rose_line"]),
+        "generator": ((920, 560, 1260, 730), "Генератор вправ", "Генерація вправи\nабо резервний сценарій", COLORS["violet_fill"], COLORS["violet_line"]),
+        "feedback": ((1450, 560, 1810, 730), "Модуль фідбеку", "Адаптивний фідбек\nабо резервне пояснення", COLORS["violet_fill"], COLORS["violet_line"]),
+        "runner": ((920, 860, 1260, 1030), "Запуск тестів", "Підготовка тестів\nі результату запуску", COLORS["rose_fill"], COLORS["rose_line"]),
         "worker": ((1450, 860, 1810, 1030), "Web Worker", "Ізольоване виконання\nкоду студента", COLORS["rose_fill"], COLORS["rose_line"]),
         "llm": ((1970, 495, 2290, 705), "Локальна LLM", "Ollama / llama3.1:8b", COLORS["teal_fill"], COLORS["teal_line"]),
-        "future": ((880, 1170, 1850, 1360), "Концептуальне розширення повної АІНС", "Knowledge Memory, Summary Memory, Vector/Profile Memory", COLORS["slate_fill"], COLORS["slate_line"]),
+        "future": ((880, 1170, 1850, 1360), "Концептуальне розширення повної АІНС", "пам'ять знань, пам'ять узагальнень,\nпрофільна / векторна пам'ять", COLORS["slate_fill"], COLORS["slate_line"]),
     }
 
     for box, title, body, fill, outline in boxes.values():
@@ -214,16 +214,16 @@ def render_component_diagram(path: Path) -> None:
 
 def render_state_diagram(path: Path) -> None:
     image, draw = make_canvas(
-        "Структура UserState і SessionMemory",
+        "Структура стану студента і пам'яті сесії",
         "Мінімальна модель стану студента для репетиторського сценарію",
     )
     title_font = load_font(30, bold=True)
-    body_font = load_font(23)
+    body_font = load_font(22)
 
     draw_box(
         draw,
         (120, 240, 1130, 1230),
-        "SessionMemory",
+        "Пам'ять сесії",
         "",
         fill=COLORS["teal_fill"],
         outline=COLORS["teal_line"],
@@ -234,8 +234,8 @@ def render_state_diagram(path: Path) -> None:
     draw_box(
         draw,
         (200, 360, 1040, 860),
-        "UserState",
-        "knowledgeLevel\nerrorHistory\nconfidence\ncurrentTopic\nattemptsCount\nlastAction",
+        "Стан студента",
+        "рівень знань\nісторія помилок\nупевненість\nпоточна тема\nкількість спроб\nостання дія",
         fill=COLORS["white"],
         outline=COLORS["teal_line"],
         title_font=title_font,
@@ -246,18 +246,18 @@ def render_state_diagram(path: Path) -> None:
         draw,
         (200, 930, 1040, 1130),
         "Додаткові поля сесії",
-        "exercise, transcript, lastRunResult, lastErrorSignature",
+        "вправа, журнал діалогу,\nостанній результат запуску,\nостання сигнатура помилки",
         fill=COLORS["slate_fill"],
         outline=COLORS["slate_line"],
         title_font=load_font(26, bold=True),
-        body_font=load_font(21),
+        body_font=load_font(20),
         align="left",
     )
     draw_box(
         draw,
         (1380, 360, 2240, 590),
         "Вхідні сигнали",
-        "studentRequest, runResult,\ntopic, code, interactionMode",
+        "запит студента, результат запуску,\nтема, код, режим взаємодії",
         fill=COLORS["rose_fill"],
         outline=COLORS["rose_line"],
         title_font=title_font,
@@ -268,14 +268,14 @@ def render_state_diagram(path: Path) -> None:
         draw,
         (1380, 760, 2240, 1130),
         "Оновлення стану",
-        "attemptsCount += 1\n"
-        "deriveConfidence(runResult)\n"
-        "buildRunErrorSignature(runResult)\n"
-        "errorHistory[:8] + lastAction",
+        "збільшення лічильника спроб\n"
+        "оновлення рівня впевненості\n"
+        "фіксація сигнатури помилки\n"
+        "оновлення історії та останньої дії",
         fill=COLORS["violet_fill"],
         outline=COLORS["violet_line"],
         title_font=title_font,
-        body_font=body_font,
+        body_font=load_font(20),
         align="left",
     )
 
@@ -288,18 +288,18 @@ def render_state_diagram(path: Path) -> None:
 def render_sequence_diagram(path: Path) -> None:
     image, draw = make_canvas(
         "Послідовність сценарію навчальної взаємодії",
-        "Від генерації вправи до runResult і адаптивного фідбеку",
+        "Від генерації вправи до результату запуску й адаптивного фідбеку",
     )
     header_font = load_font(24, bold=True)
     body_font = load_font(21)
 
     participants = [
         ("Студент", 220),
-        ("UI", 560),
-        ("Exercise", 900),
-        ("Runner", 1240),
-        ("Policy", 1580),
-        ("Feedback", 1920),
+        ("Інтерфейс", 560),
+        ("Генератор", 900),
+        ("Тестування", 1240),
+        ("Політика", 1580),
+        ("Фідбек", 1920),
     ]
     line_top = 300
     line_bottom = 1330
@@ -315,7 +315,7 @@ def render_sequence_diagram(path: Path) -> None:
         (560, 900, 560, "3. Показати вправу"),
         (650, 220, 560, "4. Запустити тести"),
         (740, 560, 1240, "5. Код і тести"),
-        (830, 1240, 560, "6. Повернути runResult"),
+        (830, 1240, 560, "6. Повернути результат"),
         (920, 560, 1580, "7. Обрати дію"),
         (1010, 560, 1920, "8. Запросити фідбек"),
         (1100, 1920, 560, "9. Повернути фідбек"),
@@ -328,7 +328,7 @@ def render_sequence_diagram(path: Path) -> None:
 
     draw.rounded_rectangle((180, 1270, 2150, 1395), radius=24, fill=COLORS["slate_fill"], outline=COLORS["slate_line"], width=3)
     footer_font = load_font(21)
-    legend = "Скорочення: Exercise = ExerciseGenerator, Runner = ClientTestRunner, Policy = TutorPolicy, Feedback = FeedbackEvaluator."
+    legend = "Показано базовий цикл взаємодії студента з мінімальним практичним сценарієм прототипу."
     draw.text((220, 1312), legend, fill=COLORS["muted"], font=footer_font)
 
     image.save(path)
@@ -337,7 +337,7 @@ def render_sequence_diagram(path: Path) -> None:
 def render_runtime_diagram(path: Path) -> None:
     image, draw = make_canvas(
         "Схема виконання прототипу",
-        "Поділ між браузерним UI, локальною LLM, Web Worker і резервним режимом",
+        "Поділ між браузерним інтерфейсом, локальною LLM, Web Worker і резервним режимом",
     )
     title_font = load_font(30, bold=True)
     body_font = load_font(23)
@@ -346,9 +346,9 @@ def render_runtime_diagram(path: Path) -> None:
     boxes = [
         ((140, 520, 620, 760), "Браузерний UI", "Вибір теми, редактор коду,\nжурнал взаємодій", COLORS["blue_fill"], COLORS["blue_line"]),
         ((840, 260, 1370, 500), "Локальна LLM", "Ollama + llama3.1:8b", COLORS["teal_fill"], COLORS["teal_line"]),
-        ((840, 800, 1370, 1040), "Web Worker", "Запуск тестів з тайм-аутом\nі валідацією payload", COLORS["violet_fill"], COLORS["violet_line"]),
-        ((1610, 260, 2240, 540), "JSON validation + retry", "Перевірка структури,\nрезервний режим,\nнормалізація відповіді", COLORS["gold_fill"], COLORS["gold_line"]),
-        ((1610, 780, 2240, 1060), "Friendly error handling", "Повідомлення без ламання UX,\nworker.onerror / messageerror", COLORS["rose_fill"], COLORS["rose_line"]),
+        ((840, 800, 1370, 1040), "Web Worker", "Запуск тестів з тайм-аутом\nі перевіркою вхідних даних", COLORS["violet_fill"], COLORS["violet_line"]),
+        ((1610, 260, 2240, 540), "Перевірка JSON і повтор", "Перевірка структури,\nрезервний режим,\nнормалізація відповіді", COLORS["gold_fill"], COLORS["gold_line"]),
+        ((1610, 780, 2240, 1060), "Коректна обробка помилок", "Стійкі повідомлення про помилки,\nworker.onerror / messageerror", COLORS["rose_fill"], COLORS["rose_line"]),
     ]
 
     for box, title, body, fill, outline in boxes:
@@ -364,7 +364,7 @@ def render_runtime_diagram(path: Path) -> None:
     notes = [
         "модель синхронізується перед LLM-викликом;",
         "невалідний JSON не руйнує сценарій, а веде до резервного режиму;",
-        "worker path має timeout, validation payload і явне error handling.",
+        "виконання у worker має тайм-аут, перевірку вхідних даних і явну обробку помилок.",
     ]
     draw.rounded_rectangle((140, 1160, 2240, 1380), radius=26, fill=COLORS["slate_fill"], outline=COLORS["slate_line"], width=3)
     y = 1210
