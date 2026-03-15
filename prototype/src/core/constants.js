@@ -2,6 +2,8 @@ export const OLLAMA_BASE_URL = "http://localhost:11434";
 export const DEFAULT_MODEL = "llama3.1:8b";
 export const DEFAULT_TIMEOUT_MS = 2500;
 export const MAX_JSON_RETRIES = 2;
+export const OLLAMA_STATUS_TIMEOUT_MS = 1500;
+export const OLLAMA_GENERATION_TIMEOUT_MS = 30000;
 
 export const TOPIC_LABELS = {
   functions: "Функції",

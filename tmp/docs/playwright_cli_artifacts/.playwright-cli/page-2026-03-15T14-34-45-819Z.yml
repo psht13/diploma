@@ -1,0 +1,118 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: AINS / JavaScript Tutor
+      - heading "Локальний діалоговий агент-репетитор для базового JavaScript" [level=1] [ref=e6]
+      - paragraph [ref=e7]: "Мінімальний vertical slice: вправа, код, тести у Web Worker, адаптивний фідбек."
+    - generic [ref=e8]:
+      - paragraph [ref=e9]: Режим LLM
+      - paragraph [ref=e10]: Підключено до Ollama, модель llama3.1:8b доступна
+      - generic [ref=e11]:
+        - generic [ref=e12]: Модель Ollama
+        - textbox "Модель Ollama" [ref=e13]: llama3.1:8b
+      - button "Оновити статус" [ref=e14] [cursor=pointer]
+  - main [ref=e15]:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - heading "1. Згенерувати вправу" [level=2] [ref=e18]
+        - paragraph [ref=e19]: LLM намагається повернути структурований JSON. Якщо це не вдається, використовується fallback.
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Тема
+          - combobox "Тема" [ref=e23]:
+            - option "Функції" [selected]
+            - option "Масиви"
+            - option "Рядки"
+            - option "Об'єкти"
+        - generic [ref=e24]:
+          - generic [ref=e25]: Складність
+          - combobox "Складність" [ref=e26]:
+            - option "Базова" [selected]
+            - option "Базова+"
+      - button "Згенерувати вправу" [ref=e79] [cursor=pointer]
+      - article [ref=e28]:
+        - heading "Написання функції для обчислення суми двох чисел" [level=3] [ref=e80]
+        - paragraph [ref=e81]: "Тема: Функції | Джерело: ollama"
+        - paragraph [ref=e82]: Написати функцію, яка приймає два числа та повертає їхню суму.
+        - generic [ref=e83]: // Напишіть свій код тут
+        - generic [ref=e84]:
+          - generic [ref=e85]: функції
+          - generic [ref=e86]: аргументи
+        - generic [ref=e87]:
+          - strong [ref=e88]: Тести
+          - list [ref=e89]:
+            - listitem [ref=e90]:
+              - strong [ref=e91]: Тест 1
+              - text: ": args ="
+              - code [ref=e92]: "[2,3]"
+              - text: ", expected ="
+              - code [ref=e93]: "5"
+            - listitem [ref=e94]:
+              - strong [ref=e95]: Тест 2
+              - text: ": args ="
+              - code [ref=e96]: "[10,-5]"
+              - text: ", expected ="
+              - code [ref=e97]: "5"
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - heading "2. Розв'язок студента" [level=2] [ref=e31]
+        - paragraph [ref=e32]: Код виконується лише у клієнтському ізольованому середовищі.
+      - generic [ref=e33]:
+        - generic [ref=e34]: Код
+        - textbox "Код" [ref=e35]: "function nope(a, b) {\\n return a - b;\\n}"
+      - generic [ref=e36]:
+        - generic [ref=e37]: Питання до репетитора
+        - textbox "Питання до репетитора" [ref=e38]:
+          - /placeholder: "Наприклад: Поясни, чому тут потрібен цикл."
+      - generic [ref=e39]:
+        - button "Запустити тести" [ref=e40] [cursor=pointer]
+        - button "Пояснити тему" [ref=e41] [cursor=pointer]
+    - generic [ref=e42]:
+      - generic [ref=e43]:
+        - heading "3. Адаптивний фідбек" [level=2] [ref=e44]
+        - paragraph [ref=e45]: "Політика репетитора враховує `attemptsCount`, історію помилок і тип поточного запиту."
+      - generic [ref=e46]:
+        - strong [ref=e119]: error
+        - paragraph [ref=e120]: Пройдено 0/2 тестів за 15 мс.
+        - paragraph [ref=e121]: Invalid or unexpected token
+      - generic [ref=e47]:
+        - heading "Фідбек (fallback)" [level=3] [ref=e122]
+        - paragraph [ref=e123]: "Є синтаксична помилка: Invalid or unexpected token."
+        - paragraph [ref=e124]:
+          - strong [ref=e125]: "Наступний крок:"
+          - text: Перевірте дужки, фігурні дужки та ключове слово return. Репетитор не дає готовий код, але підказує місце пошуку проблеми.
+        - paragraph [ref=e126]: "Стиль: syntax | Рівень розкриття: low"
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - heading "Session Memory" [level=2] [ref=e54]
+        - paragraph [ref=e55]: Показано лише ту частину стану, яка реально зберігається в прототипі.
+      - generic [ref=e56]:
+        - generic [ref=e127]:
+          - paragraph [ref=e128]: Рівень знань
+          - paragraph [ref=e129]: початковий
+        - generic [ref=e130]:
+          - paragraph [ref=e131]: Історія помилок
+          - paragraph [ref=e132]: Invalid or unexpected token
+        - generic [ref=e133]:
+          - paragraph [ref=e134]: Впевненість
+          - paragraph [ref=e135]: низька
+        - generic [ref=e136]:
+          - paragraph [ref=e137]: Поточна тема
+          - paragraph [ref=e138]: Функції
+        - generic [ref=e139]:
+          - paragraph [ref=e140]: Кількість спроб
+          - paragraph [ref=e141]: "1"
+        - generic [ref=e142]:
+          - paragraph [ref=e143]: Остання дія
+          - paragraph [ref=e144]: syntax_repair
+      - generic [ref=e75]:
+        - article [ref=e145]:
+          - paragraph [ref=e146]: Репетитор
+          - paragraph [ref=e147]: Підготовлено вправу «Написання функції для обчислення суми двох чисел». Спробуйте спочатку самостійно реалізувати функцію.
+        - article [ref=e148]:
+          - paragraph [ref=e149]: Студент
+          - paragraph [ref=e150]: Спроба 1.
+        - article [ref=e151]:
+          - paragraph [ref=e152]: Репетитор
+          - paragraph [ref=e153]: "Є синтаксична помилка: Invalid or unexpected token. Перевірте дужки, фігурні дужки та ключове слово return. Репетитор не дає готовий код, але підказує місце пошуку проблеми."
+      - button "Експортувати сесію JSON" [ref=e77] [cursor=pointer]

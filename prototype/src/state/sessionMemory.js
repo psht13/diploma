@@ -65,6 +65,7 @@ export class SessionMemory {
       currentTopic: exercise.topic,
       lastAction: "exercise_generated"
     };
+    this.firstFailure = null;
     this.lastRunResult = null;
     this.lastErrorSignature = null;
     this.addTutorMessage(

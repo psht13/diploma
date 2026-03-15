@@ -68,3 +68,34 @@ test("SessionMemory builds lightweight session export for experiments", () => {
   assert.equal(exported.finalRunStatus.status, "failed");
   assert.equal(exported.timestamp, "2026-03-15T10:00:00.000Z");
 });
+
+test("SessionMemory clears firstFailure when a new exercise starts", () => {
+  const memory = new SessionMemory();
+  memory.resetForExercise({
+    ...exercise,
+    difficulty: "basic"
+  });
+  memory.recordRunResult({
+    status: "failed",
+    allPassed: false,
+    passedCount: 0,
+    totalCount: 1,
+    syntaxError: "demo syntax error",
+    failures: []
+  });
+
+  memory.resetForExercise({
+    title: "New exercise",
+    topic: "Масиви",
+    difficulty: "basic-plus"
+  });
+
+  const exported = memory.buildSessionExport({
+    timestamp: "2026-03-15T11:00:00.000Z"
+  });
+
+  assert.equal(exported.topic, "Масиви");
+  assert.equal(exported.attemptsCount, 0);
+  assert.equal(exported.firstFailure, null);
+  assert.equal(exported.finalRunStatus, null);
+});

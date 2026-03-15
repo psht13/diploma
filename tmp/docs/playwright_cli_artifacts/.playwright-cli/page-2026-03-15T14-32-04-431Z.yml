@@ -1,0 +1,83 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: AINS / JavaScript Tutor
+      - heading "Локальний діалоговий агент-репетитор для базового JavaScript" [level=1] [ref=e6]
+      - paragraph [ref=e7]: "Мінімальний vertical slice: вправа, код, тести у Web Worker, адаптивний фідбек."
+    - generic [ref=e8]:
+      - paragraph [ref=e9]: Режим LLM
+      - paragraph [ref=e10]: Підключено до Ollama, модель llama3.1:8b доступна
+      - generic [ref=e11]:
+        - generic [ref=e12]: Модель Ollama
+        - textbox "Модель Ollama" [ref=e13]: llama3.1:8b
+      - button "Оновити статус" [ref=e14] [cursor=pointer]
+  - main [ref=e15]:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - heading "1. Згенерувати вправу" [level=2] [ref=e18]
+        - paragraph [ref=e19]: LLM намагається повернути структурований JSON. Якщо це не вдається, використовується fallback.
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Тема
+          - combobox "Тема" [ref=e23]:
+            - option "Функції" [selected]
+            - option "Масиви"
+            - option "Рядки"
+            - option "Об'єкти"
+        - generic [ref=e24]:
+          - generic [ref=e25]: Складність
+          - combobox "Складність" [ref=e26]:
+            - option "Базова" [selected]
+            - option "Базова+"
+      - button "Генерація..." [disabled] [ref=e78] [cursor=pointer]
+      - article [ref=e28]: Спочатку згенеруйте вправу.
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - heading "2. Розв'язок студента" [level=2] [ref=e31]
+        - paragraph [ref=e32]: Код виконується лише у клієнтському ізольованому середовищі.
+      - generic [ref=e33]:
+        - generic [ref=e34]: Код
+        - textbox "Код" [ref=e35]
+      - generic [ref=e36]:
+        - generic [ref=e37]: Питання до репетитора
+        - textbox "Питання до репетитора" [ref=e38]:
+          - /placeholder: "Наприклад: Поясни, чому тут потрібен цикл."
+      - generic [ref=e39]:
+        - button "Запустити тести" [ref=e40] [cursor=pointer]
+        - button "Пояснити тему" [ref=e41] [cursor=pointer]
+    - generic [ref=e42]:
+      - generic [ref=e43]:
+        - heading "3. Адаптивний фідбек" [level=2] [ref=e44]
+        - paragraph [ref=e45]: "Політика репетитора враховує `attemptsCount`, історію помилок і тип поточного запиту."
+      - generic [ref=e46]: Результати тестів ще відсутні.
+      - generic [ref=e47]:
+        - heading "Готовність прототипу" [level=3] [ref=e48]
+        - paragraph [ref=e49]: "Прототип підтримує fallback-вправи: Сума елементів масиву, Порахувати парні числа, Змінити порядок слів."
+        - paragraph [ref=e50]:
+          - strong [ref=e51]: "Матриця рішень:"
+          - text: Усі тести пройдено -> celebrate_and_reflect; Перша помилка або часткове проходження тестів -> minimal_hint; Повторна помилка того самого типу або серія невдалих спроб -> targeted_hint; Синтаксична помилка -> syntax_repair; Прямий запит на пояснення -> concept_explanation
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - heading "Session Memory" [level=2] [ref=e54]
+        - paragraph [ref=e55]: Показано лише ту частину стану, яка реально зберігається в прототипі.
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - paragraph [ref=e58]: Рівень знань
+          - paragraph [ref=e59]: початковий
+        - generic [ref=e60]:
+          - paragraph [ref=e61]: Історія помилок
+          - paragraph [ref=e62]: немає
+        - generic [ref=e63]:
+          - paragraph [ref=e64]: Впевненість
+          - paragraph [ref=e65]: середня
+        - generic [ref=e66]:
+          - paragraph [ref=e67]: Поточна тема
+          - paragraph [ref=e68]: не вибрано
+        - generic [ref=e69]:
+          - paragraph [ref=e70]: Кількість спроб
+          - paragraph [ref=e71]: "0"
+        - generic [ref=e72]:
+          - paragraph [ref=e73]: Остання дія
+          - paragraph [ref=e74]: idle
+      - paragraph [ref=e76]: Діалог ще не розпочато.
+      - button "Експортувати сесію JSON" [ref=e77] [cursor=pointer]

@@ -1,0 +1,136 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: AINS / JavaScript Tutor
+      - heading "Локальний діалоговий агент-репетитор для базового JavaScript" [level=1] [ref=e6]
+      - paragraph [ref=e7]: "Мінімальний vertical slice: вправа, код, тести у Web Worker, адаптивний фідбек."
+    - generic [ref=e8]:
+      - paragraph [ref=e9]: Режим LLM
+      - paragraph [ref=e10]: Підключено до Ollama, модель llama3.1:8b доступна
+      - generic [ref=e11]:
+        - generic [ref=e12]: Модель Ollama
+        - textbox "Модель Ollama" [ref=e13]: llama3.1:8b
+      - button "Оновити статус" [ref=e14] [cursor=pointer]
+  - main [ref=e15]:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - heading "1. Згенерувати вправу" [level=2] [ref=e18]
+        - paragraph [ref=e19]: LLM намагається повернути структурований JSON. Якщо це не вдається, використовується fallback.
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Тема
+          - combobox "Тема" [ref=e23]:
+            - option "Функції" [selected]
+            - option "Масиви"
+            - option "Рядки"
+            - option "Об'єкти"
+        - generic [ref=e24]:
+          - generic [ref=e25]: Складність
+          - combobox "Складність" [ref=e26]:
+            - option "Базова" [selected]
+            - option "Базова+"
+      - button "Згенерувати вправу" [ref=e79] [cursor=pointer]
+      - article [ref=e28]:
+        - heading "Написання функції з одним аргументом" [level=3] [ref=e80]
+        - paragraph [ref=e81]: "Тема: Функції | Джерело: ollama"
+        - paragraph [ref=e82]: Напишіть функцію, яка приймає одне число і повертає його квадрат.
+        - paragraph [ref=e83]:
+          - text: "Очікувана функція:"
+          - code [ref=e84]: squareNumber
+        - generic [ref=e85]: "// Напишіть тут свій код function functionName(arg) {} return functionName;"
+        - generic [ref=e86]:
+          - generic [ref=e87]: функції
+          - generic [ref=e88]: аргументи
+        - generic [ref=e89]:
+          - strong [ref=e90]: Тести
+          - list [ref=e91]:
+            - listitem [ref=e92]:
+              - strong [ref=e93]: Правильна робота з позитивним числом
+              - text: ": args ="
+              - code [ref=e94]: "[5]"
+              - text: ", expected ="
+              - code [ref=e95]: "25"
+            - listitem [ref=e96]:
+              - strong [ref=e97]: Правильна робота з негативним числом
+              - text: ": args ="
+              - code [ref=e98]: "[-3]"
+              - text: ", expected ="
+              - code [ref=e99]: "9"
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - heading "2. Розв'язок студента" [level=2] [ref=e31]
+        - paragraph [ref=e32]: Код виконується лише у клієнтському ізольованому середовищі.
+      - generic [ref=e33]:
+        - generic [ref=e34]: Код
+        - textbox "Код" [ref=e35]: "function squareNumber(number) { return number * 3; }"
+      - generic [ref=e36]:
+        - generic [ref=e37]: Питання до репетитора
+        - textbox "Питання до репетитора" [ref=e38]:
+          - /placeholder: "Наприклад: Поясни, чому тут потрібен цикл."
+          - text: Що робити далі?
+      - generic [ref=e39]:
+        - button "Запустити тести" [ref=e40] [cursor=pointer]
+        - button "Пояснити тему" [ref=e41] [cursor=pointer]
+    - generic [ref=e42]:
+      - generic [ref=e43]:
+        - heading "3. Адаптивний фідбек" [level=2] [ref=e44]
+        - paragraph [ref=e45]: "Політика репетитора враховує `attemptsCount`, історію помилок і тип поточного запиту."
+      - generic [ref=e46]:
+        - strong [ref=e158]: failed
+        - paragraph [ref=e159]: Пройдено 0/2 тестів за 16 мс.
+        - list [ref=e160]:
+          - listitem [ref=e161]: Правильна робота з позитивним числом
+          - listitem [ref=e162]: Правильна робота з негативним числом
+      - generic [ref=e47]:
+        - heading "Фідбек (ollama)" [level=3] [ref=e201]
+        - paragraph [ref=e202]: Дві спроби, жодна не вдалося.
+        - paragraph [ref=e203]:
+          - strong [ref=e204]: "Наступний крок:"
+          - text: Повторіть спробу з позитивним числом.
+        - paragraph [ref=e205]: "Стиль: targeted | Рівень розкриття: low"
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - heading "Session Memory" [level=2] [ref=e54]
+        - paragraph [ref=e55]: Показано лише ту частину стану, яка реально зберігається в прототипі.
+      - generic [ref=e56]:
+        - generic [ref=e206]:
+          - paragraph [ref=e207]: Рівень знань
+          - paragraph [ref=e208]: початковий
+        - generic [ref=e209]:
+          - paragraph [ref=e210]: Історія помилок
+          - paragraph [ref=e211]: Правильна робота з позитивним числом
+        - generic [ref=e212]:
+          - paragraph [ref=e213]: Впевненість
+          - paragraph [ref=e214]: низька
+        - generic [ref=e215]:
+          - paragraph [ref=e216]: Поточна тема
+          - paragraph [ref=e217]: Функції
+        - generic [ref=e218]:
+          - paragraph [ref=e219]: Кількість спроб
+          - paragraph [ref=e220]: "2"
+        - generic [ref=e221]:
+          - paragraph [ref=e222]: Остання дія
+          - paragraph [ref=e223]: concept_explanation
+      - generic [ref=e75]:
+        - article [ref=e224]:
+          - paragraph [ref=e225]: Репетитор
+          - paragraph [ref=e226]: Підготовлено вправу «Написання функції з одним аргументом». Спробуйте спочатку самостійно реалізувати функцію.
+        - article [ref=e227]:
+          - paragraph [ref=e228]: Студент
+          - paragraph [ref=e229]: Спроба 1.
+        - article [ref=e230]:
+          - paragraph [ref=e231]: Репетитор
+          - paragraph [ref=e232]: Помилка в роботі з негативним числом. Перевірте роботу зі змінними типу number.
+        - article [ref=e233]:
+          - paragraph [ref=e234]: Студент
+          - paragraph [ref=e235]: Спроба 2.
+        - article [ref=e236]:
+          - paragraph [ref=e237]: Репетитор
+          - paragraph [ref=e238]: Помилка повторюється, спробуйте змінити функцію. Перегляньте помилки та спробуйте знову.
+        - article [ref=e239]:
+          - paragraph [ref=e240]: Студент
+          - paragraph [ref=e241]: Що робити далі?
+        - article [ref=e242]:
+          - paragraph [ref=e243]: Репетитор
+          - paragraph [ref=e244]: Дві спроби, жодна не вдалося. Повторіть спробу з позитивним числом.
+      - button "Експортувати сесію JSON" [ref=e77] [cursor=pointer]

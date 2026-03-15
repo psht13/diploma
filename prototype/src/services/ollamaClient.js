@@ -1,4 +1,10 @@
-import { DEFAULT_MODEL, MAX_JSON_RETRIES, OLLAMA_BASE_URL } from "../core/constants.js";
+import {
+  DEFAULT_MODEL,
+  MAX_JSON_RETRIES,
+  OLLAMA_BASE_URL,
+  OLLAMA_GENERATION_TIMEOUT_MS,
+  OLLAMA_STATUS_TIMEOUT_MS
+} from "../core/constants.js";
 import { formatValidationErrors } from "../core/contracts.js";
 import { extractJsonBlock } from "../core/json.js";
 
@@ -26,7 +32,7 @@ export class OllamaClient {
 
   async getStatus() {
     try {
-      const response = await fetchWithTimeout(`${this.baseUrl}/api/tags`, {}, 1500);
+      const response = await fetchWithTimeout(`${this.baseUrl}/api/tags`, {}, OLLAMA_STATUS_TIMEOUT_MS);
 
       if (!response.ok) {
         return { available: false, message: `HTTP ${response.status}` };
@@ -71,7 +77,7 @@ export class OllamaClient {
               }
             })
           },
-          12000
+          OLLAMA_GENERATION_TIMEOUT_MS
         );
 
         if (!response.ok) {

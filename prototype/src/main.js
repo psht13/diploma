@@ -74,6 +74,7 @@ function renderExercise(exercise) {
       exercise.source
     )}</p>
     <p>${escapeHtml(exercise.prompt)}</p>
+    <p class="meta-line">Очікувана функція: <code>${escapeHtml(exercise.functionName)}</code></p>
     <div class="code-block">${escapeHtml(exercise.starterCode)}</div>
     <div>${concepts}</div>
     <div class="test-list">

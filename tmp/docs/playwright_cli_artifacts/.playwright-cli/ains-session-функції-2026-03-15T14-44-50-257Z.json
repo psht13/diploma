@@ -1,0 +1,57 @@
+{
+  "topic": "Функції",
+  "difficulty": "basic",
+  "attemptsCount": 2,
+  "firstFailure": {
+    "signature": "test:Правильна робота з позитивним числом:25",
+    "kind": "test",
+    "detail": "Правильна робота з позитивним числом",
+    "timestamp": "2026-03-15T14:42:58.836Z"
+  },
+  "lastAction": "concept_explanation",
+  "transcript": [
+    {
+      "role": "tutor",
+      "content": "Підготовлено вправу «Написання функції з одним аргументом». Спробуйте спочатку самостійно реалізувати функцію.",
+      "timestamp": "2026-03-15T14:42:37.680Z"
+    },
+    {
+      "role": "user",
+      "content": "Спроба 1.",
+      "timestamp": "2026-03-15T14:42:58.821Z"
+    },
+    {
+      "role": "tutor",
+      "content": "Помилка в роботі з негативним числом.\nПеревірте роботу зі змінними типу number.",
+      "timestamp": "2026-03-15T14:43:05.812Z"
+    },
+    {
+      "role": "user",
+      "content": "Спроба 2.",
+      "timestamp": "2026-03-15T14:43:24.753Z"
+    },
+    {
+      "role": "tutor",
+      "content": "Помилка повторюється, спробуйте змінити функцію.\nПерегляньте помилки та спробуйте знову.",
+      "timestamp": "2026-03-15T14:43:30.233Z"
+    },
+    {
+      "role": "user",
+      "content": "Що робити далі?",
+      "timestamp": "2026-03-15T14:44:07.388Z"
+    },
+    {
+      "role": "tutor",
+      "content": "Дві спроби, жодна не вдалося.\nПовторіть спробу з позитивним числом.",
+      "timestamp": "2026-03-15T14:44:12.228Z"
+    }
+  ],
+  "finalRunStatus": {
+    "status": "failed",
+    "allPassed": false,
+    "syntaxError": null,
+    "passedCount": 0,
+    "totalCount": 2
+  },
+  "timestamp": "2026-03-15T14:44:50.257Z"
+}

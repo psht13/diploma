@@ -1,0 +1,132 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: AINS / JavaScript Tutor
+      - heading "Локальний діалоговий агент-репетитор для базового JavaScript" [level=1] [ref=e6]
+      - paragraph [ref=e7]: "Мінімальний vertical slice: вправа, код, тести у Web Worker, адаптивний фідбек."
+    - generic [ref=e8]:
+      - paragraph [ref=e9]: Режим LLM
+      - paragraph [ref=e10]: Підключено до Ollama, модель llama3.1:8b доступна
+      - generic [ref=e11]:
+        - generic [ref=e12]: Модель Ollama
+        - textbox "Модель Ollama" [ref=e13]: llama3.1:8b
+      - button "Оновити статус" [ref=e14] [cursor=pointer]
+  - main [ref=e15]:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - heading "1. Згенерувати вправу" [level=2] [ref=e18]
+        - paragraph [ref=e19]: LLM намагається повернути структурований JSON. Якщо це не вдається, використовується fallback.
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Тема
+          - combobox "Тема" [ref=e23]:
+            - option "Функції" [selected]
+            - option "Масиви"
+            - option "Рядки"
+            - option "Об'єкти"
+        - generic [ref=e24]:
+          - generic [ref=e25]: Складність
+          - combobox "Складність" [ref=e26]:
+            - option "Базова" [selected]
+            - option "Базова+"
+      - button "Згенерувати вправу" [ref=e155] [cursor=pointer]
+      - article [ref=e28]:
+        - heading "Перевірка роботи функції з трьома аргументами" [level=3] [ref=e156]
+        - paragraph [ref=e157]: "Тема: Функції | Джерело: ollama"
+        - paragraph [ref=e158]: Написати функцію, яка приймає три числа і повертає їхню суму.
+        - generic [ref=e159]: "// Напишіть свій код тут function addThreeNumbers(a, b, c) { // Тіло функції }"
+        - generic [ref=e160]:
+          - generic [ref=e161]: функції
+          - generic [ref=e162]: аргументи
+        - generic [ref=e163]:
+          - strong [ref=e164]: Тести
+          - list [ref=e165]:
+            - listitem [ref=e166]:
+              - strong [ref=e167]: Тест 1
+              - text: ": args ="
+              - code [ref=e168]: "[1,2,3]"
+              - text: ", expected ="
+              - code [ref=e169]: "6"
+            - listitem [ref=e170]:
+              - strong [ref=e171]: Тест 2
+              - text: ": args ="
+              - code [ref=e172]: "[-1,-2,-3]"
+              - text: ", expected ="
+              - code [ref=e173]: "-6"
+            - listitem [ref=e174]:
+              - strong [ref=e175]: Тест 3
+              - text: ": args ="
+              - code [ref=e176]: "[0,0,0]"
+              - text: ", expected ="
+              - code [ref=e177]: "0"
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - heading "2. Розв'язок студента" [level=2] [ref=e31]
+        - paragraph [ref=e32]: Код виконується лише у клієнтському ізольованому середовищі.
+      - generic [ref=e33]:
+        - generic [ref=e34]: Код
+        - textbox "Код" [ref=e35]: "function addThreeNumbers(a, b, c) { return a + b; }"
+      - generic [ref=e36]:
+        - generic [ref=e37]: Питання до репетитора
+        - textbox "Питання до репетитора" [ref=e38]:
+          - /placeholder: "Наприклад: Поясни, чому тут потрібен цикл."
+      - generic [ref=e39]:
+        - button "Запустити тести" [ref=e40] [cursor=pointer]
+        - button "Пояснити тему" [ref=e41] [cursor=pointer]
+    - generic [ref=e42]:
+      - generic [ref=e43]:
+        - heading "3. Адаптивний фідбек" [level=2] [ref=e44]
+        - paragraph [ref=e45]: "Політика репетитора враховує `attemptsCount`, історію помилок і тип поточного запиту."
+      - generic [ref=e46]:
+        - strong [ref=e236]: failed
+        - paragraph [ref=e237]: Пройдено 1/3 тестів за 15 мс.
+        - list [ref=e238]:
+          - listitem [ref=e239]: Тест 1
+          - listitem [ref=e240]: Тест 2
+      - generic [ref=e47]:
+        - heading "Фідбек (ollama)" [level=3] [ref=e241]
+        - paragraph [ref=e242]: Помилка в першому тести
+        - paragraph [ref=e243]:
+          - strong [ref=e244]: "Наступний крок:"
+          - text: Перевірте перший тест
+        - paragraph [ref=e245]: "Стиль: targeted | Рівень розкриття: low"
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - heading "Session Memory" [level=2] [ref=e54]
+        - paragraph [ref=e55]: Показано лише ту частину стану, яка реально зберігається в прототипі.
+      - generic [ref=e56]:
+        - generic [ref=e246]:
+          - paragraph [ref=e247]: Рівень знань
+          - paragraph [ref=e248]: початковий
+        - generic [ref=e249]:
+          - paragraph [ref=e250]: Історія помилок
+          - paragraph [ref=e251]: Тест 1
+        - generic [ref=e252]:
+          - paragraph [ref=e253]: Впевненість
+          - paragraph [ref=e254]: низька
+        - generic [ref=e255]:
+          - paragraph [ref=e256]: Поточна тема
+          - paragraph [ref=e257]: Функції
+        - generic [ref=e258]:
+          - paragraph [ref=e259]: Кількість спроб
+          - paragraph [ref=e260]: "2"
+        - generic [ref=e261]:
+          - paragraph [ref=e262]: Остання дія
+          - paragraph [ref=e263]: targeted_hint
+      - generic [ref=e75]:
+        - article [ref=e264]:
+          - paragraph [ref=e265]: Репетитор
+          - paragraph [ref=e266]: Підготовлено вправу «Перевірка роботи функції з трьома аргументами». Спробуйте спочатку самостійно реалізувати функцію.
+        - article [ref=e267]:
+          - paragraph [ref=e268]: Студент
+          - paragraph [ref=e269]: Спроба 1.
+        - article [ref=e270]:
+          - paragraph [ref=e271]: Репетитор
+          - paragraph [ref=e272]: Помилка в першому тесті. Перевірте аргументи функції addThreeNumbers.
+        - article [ref=e273]:
+          - paragraph [ref=e274]: Студент
+          - paragraph [ref=e275]: Спроба 2.
+        - article [ref=e276]:
+          - paragraph [ref=e277]: Репетитор
+          - paragraph [ref=e278]: Помилка в першому тести Перевірте перший тест
+      - button "Експортувати сесію JSON" [ref=e77] [cursor=pointer]
