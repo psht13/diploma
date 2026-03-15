@@ -2,6 +2,110 @@
 
 ## 2026-03-14
 
+### Етап 1. Повторний аудит коду і документа перед виправленнями
+
+- Повторно прочитано:
+  - `assets/Зміст курсового проєкту.docx`;
+  - `assets/маг робота як шаблон оформлення.docx`;
+  - `output/coursework_draft_ua.docx`;
+  - увесь код у `prototype/`;
+  - `package.json`;
+  - `prototype/README.md`.
+- Підтверджено ключові дефекти коду:
+  - перша помилка може ескалювати до `targeted_hint` через порядок оновлення `SessionMemory`;
+  - fallback explanation дублює студентський запит;
+  - немає schema validation для LLM JSON;
+  - модель в UI не синхронізується перед кожним LLM-викликом;
+  - бракує повного error handling у UI;
+  - worker sandbox потребує посилення.
+- Підтверджено ключові дефекти документа:
+  - зміст лишився плейсхолдером;
+  - page numbering відсутній;
+  - у тілі документа є `{cite('S11', 'S12')}`;
+  - у тілі документа є згадки `docs/codex/DIAGRAM_SOURCES.md`;
+  - у `.docx` відсутні реальні вставлені діаграми;
+  - PDF-рендер має повністю порожню сторінку 33 перед додатками;
+  - 12 таблиць не мають академічних підписів типу `Таблиця 1.1 - ...`.
+- Оновлено службові файли:
+  - `docs/codex/CODE_ISSUES.md`;
+  - `docs/codex/DOC_ISSUES.md`;
+  - `docs/codex/FIX_PLAN.md`;
+  - `docs/codex/MANUAL_ACTIONS.md`.
+
+### Етап 2. Виправлення коду і тестів
+
+- Додано нові модулі:
+  - `prototype/src/core/contracts.js`;
+  - `prototype/src/core/runResult.js`;
+  - `prototype/src/services/sandboxExecution.js`.
+- Виправлено policy escalation bug:
+  - перша помилка тепер дає `minimal_hint`;
+  - повторна та сама помилка дає `targeted_hint`.
+- Виправлено fallback explanation у `FeedbackEvaluator`.
+- Додано schema validation і retry/fallback для exercise/feedback JSON.
+- Синхронізовано модель перед кожним LLM-викликом у `main.js`.
+- Додано дружній error handling і `console` diagnostics у UI.
+- Посилено worker path:
+  - validation `functionName`;
+  - validation sandbox payload;
+  - `worker.onerror`;
+  - `messageerror`;
+  - timeout handling.
+- Оновлено README і `package.json`:
+  - додано `npm run serve`;
+  - зафіксовано, що worker не є повною security sandbox boundary.
+- Додано нові тести:
+  - `feedbackEvaluator.test.mjs`;
+  - `generationFallback.test.mjs`;
+  - `ollamaClient.test.mjs`;
+  - `sandboxExecution.test.mjs`;
+  - `clientTestRunner.test.mjs`.
+- Підсумок перевірки коду:
+  - `npm test` -> 24/24 тестів успішно;
+  - `node --check` по `prototype/src` і `prototype/tests` -> без синтаксичних помилок.
+
+### Етапи 3-5. Оновлення документа і академічне оформлення
+
+- Додано `scripts/fix_coursework_doc.py` для відтворюваного постпроцесингу поточної чернетки.
+- Згенеровано `output/coursework_draft_ua_fixed.docx`.
+- Згенеровано figure assets у `docs/codex/diagram_assets/`:
+  - компонентна архітектура АІНС;
+  - `UserState` / `SessionMemory`;
+  - sequence diagram сценарію генерації вправи, тестування і фідбеку;
+  - runtime-схема прототипу.
+- У фінальний `.docx` вставлено 4 реальні рисунки.
+- Додано зміст із номерами сторінок.
+- Додано page numbering у header.
+- Додано 14 підписаних таблиць і підписи до рисунків.
+- Автоматично заповнено анотацію:
+  - 41 с.;
+  - 4 рис.;
+  - 14 табл.;
+  - 4 дод.;
+  - 29 джерел.
+- Прибрано:
+  - `{cite('S11', 'S12')}`;
+  - `docs/codex/...` з тіла документа;
+  - figure placeholders;
+  - повністю порожню сторінку перед додатками.
+- Розділ 4 синхронізовано з фактичним кодом після виправлень.
+- Експериментальний блок підсилено:
+  - гіпотези;
+  - змінні;
+  - метрики;
+  - план статистичного аналізу;
+  - таблиця-шаблон для ручного внесення результатів.
+
+### Етап 6. Фінальна перевірка
+
+- Перевірено:
+  - `output/coursework_draft_ua_fixed.docx` існує;
+  - `npm test` проходить;
+  - у `.docx` немає сирих `cite(...)`;
+  - у `.docx` немає `docs/codex/...`;
+  - у `.docx` вставлено 4 `inline_shapes`;
+  - фінальний PDF-рендер має 41 сторінку і не містить порожніх сторінок.
+
 ### Етап 1. Прочитання шаблонів і фіксація стану
 
 - Прочитано `assets/Зміст курсового проєкту.docx`.

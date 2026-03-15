@@ -1,3 +1,5 @@
+import { buildRunErrorSignature } from "../core/runResult.js";
+
 function isExplanationRequest(studentRequest = "") {
   return /поясн|чому|як працює|explain/i.test(studentRequest);
 }
@@ -28,15 +30,20 @@ export function decideTutorAction({ userState, runResult, studentRequest = "" })
   }
 
   const attemptsCount = userState?.attemptsCount ?? 0;
-  const previousError = userState?.errorHistory?.[0]?.detail;
-  const currentError = runResult?.failures?.[0]?.name;
-  const repeatedError = previousError && currentError && previousError === currentError;
+  const currentSignature = buildRunErrorSignature(runResult);
+  const latestHistoryEntry = userState?.errorHistory?.[0] ?? null;
+  const previousHistoryEntry =
+    latestHistoryEntry?.signature === currentSignature ? userState?.errorHistory?.[1] : latestHistoryEntry;
+  const repeatedError =
+    Boolean(currentSignature) && previousHistoryEntry?.signature === currentSignature;
 
-  if (repeatedError || attemptsCount >= 2) {
+  if (repeatedError || attemptsCount >= 3) {
     return {
       action: "targeted_hint",
       hintLevel: "targeted",
-      rationale: "Помилка повторюється або це не перша спроба."
+      rationale: repeatedError
+        ? "Помилка повторюється, тому можна дати точнішу підказку."
+        : "Це вже щонайменше третя невдала спроба."
     };
   }
 

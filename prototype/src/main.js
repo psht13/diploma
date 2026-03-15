@@ -32,6 +32,12 @@ const sessionMemory = new SessionMemory();
 
 let currentExercise = null;
 
+function syncActiveModel() {
+  const selectedModel = ui.modelInput.value.trim() || DEFAULT_MODEL;
+  ollamaClient.setModel(selectedModel);
+  return selectedModel;
+}
+
 function escapeHtml(value) {
   return value
     .replaceAll("&", "&amp;")
@@ -128,6 +134,22 @@ function renderFeedback(feedback) {
   `;
 }
 
+function renderSystemFeedback({
+  summary,
+  nextStep,
+  source = "system",
+  tutorStyle = "system",
+  revealLevel = "none"
+}) {
+  renderFeedback({
+    summary,
+    nextStep,
+    source,
+    tutorStyle,
+    revealLevel
+  });
+}
+
 function renderUserState() {
   const state = sessionMemory.getUserState();
   const stateEntries = [
@@ -187,14 +209,25 @@ function renderInitialDemoNote() {
   `;
 }
 
+function logUiError(context, error) {
+  console.error(`[ui:${context}]`, error);
+}
+
 async function refreshStatus() {
-  ollamaClient.setModel(ui.modelInput.value.trim() || DEFAULT_MODEL);
+  const model = syncActiveModel();
   ui.llmStatus.textContent = "Перевірка підключення...";
-  const status = await ollamaClient.getStatus();
-  ui.llmStatus.textContent = status.message;
+
+  try {
+    const status = await ollamaClient.getStatus();
+    ui.llmStatus.textContent = status.message;
+  } catch (error) {
+    logUiError("refreshStatus", error);
+    ui.llmStatus.textContent = `Не вдалося перевірити модель ${model}. Буде використано fallback-режим.`;
+  }
 }
 
 async function handleGenerateExercise() {
+  syncActiveModel();
   ui.generateBtn.disabled = true;
   ui.generateBtn.textContent = "Генерація...";
 
@@ -211,6 +244,14 @@ async function handleGenerateExercise() {
     renderTestSummary(null);
     renderFeedback(null);
     ui.codeInput.value = currentExercise.starterCode;
+    ui.questionInput.value = "";
+  } catch (error) {
+    logUiError("generateExercise", error);
+    renderSystemFeedback({
+      summary: "Не вдалося підготувати вправу.",
+      nextStep:
+        "Перевірте параметри моделі або повторіть спробу. Якщо Ollama недоступна, прототип має перейти у fallback-режим."
+    });
   } finally {
     ui.generateBtn.disabled = false;
     ui.generateBtn.textContent = "Згенерувати вправу";
@@ -218,6 +259,7 @@ async function handleGenerateExercise() {
 }
 
 async function deliverTutorFeedback({ runResult, studentRequest = "" }) {
+  syncActiveModel();
   const userState = sessionMemory.getUserState();
   const policy = decideTutorAction({
     userState,
@@ -251,17 +293,37 @@ async function handleRunTests() {
     return;
   }
 
+  ui.runTestsBtn.disabled = true;
   const studentCode = ui.codeInput.value;
   sessionMemory.addStudentMessage(`Спроба ${sessionMemory.getUserState().attemptsCount + 1}.`);
 
-  const runResult = await runExerciseTests({
-    userCode: studentCode,
-    exercise: currentExercise
-  });
+  try {
+    const runResult = await runExerciseTests({
+      userCode: studentCode,
+      exercise: currentExercise
+    });
 
-  sessionMemory.recordRunResult(runResult);
-  renderTestSummary(runResult);
-  await deliverTutorFeedback({ runResult });
+    sessionMemory.recordRunResult(runResult);
+    renderTestSummary(runResult);
+    await deliverTutorFeedback({ runResult });
+  } catch (error) {
+    logUiError("runTests", error);
+    renderTestSummary({
+      status: "error",
+      allPassed: false,
+      passedCount: 0,
+      totalCount: currentExercise.tests.length,
+      failures: [],
+      syntaxError: "Не вдалося виконати тести через внутрішню помилку.",
+      durationMs: 0
+    });
+    renderSystemFeedback({
+      summary: "Тести не були виконані через внутрішню помилку.",
+      nextStep: "Повторіть спробу. Деталі помилки виведено в console для діагностики."
+    });
+  } finally {
+    ui.runTestsBtn.disabled = false;
+  }
 }
 
 async function handleExplainRequest() {
@@ -269,18 +331,33 @@ async function handleExplainRequest() {
     return;
   }
 
+  ui.explainBtn.disabled = true;
   const studentRequest =
     ui.questionInput.value.trim() ||
     `Поясни, як підступитися до вправи «${currentExercise.title}».`;
   sessionMemory.addStudentMessage(studentRequest);
 
-  await deliverTutorFeedback({
-    runResult: sessionMemory.getLastRunResult(),
-    studentRequest
-  });
+  try {
+    await deliverTutorFeedback({
+      runResult: sessionMemory.getLastRunResult(),
+      studentRequest
+    });
+  } catch (error) {
+    logUiError("explainRequest", error);
+    renderSystemFeedback({
+      summary: "Не вдалося підготувати пояснення.",
+      nextStep: "Спробуйте ще раз. Якщо проблема повториться, перевірте console diagnostics."
+    });
+  } finally {
+    ui.explainBtn.disabled = false;
+  }
 }
 
 ui.refreshStatusBtn.addEventListener("click", refreshStatus);
+ui.modelInput.addEventListener("input", () => {
+  const selectedModel = ui.modelInput.value.trim() || DEFAULT_MODEL;
+  ui.llmStatus.textContent = `Обрано модель ${selectedModel}. Вона буде використана під час наступного LLM-виклику.`;
+});
 ui.generateBtn.addEventListener("click", handleGenerateExercise);
 ui.runTestsBtn.addEventListener("click", handleRunTests);
 ui.explainBtn.addEventListener("click", handleExplainRequest);

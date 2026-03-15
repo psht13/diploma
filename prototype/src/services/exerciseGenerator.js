@@ -1,4 +1,5 @@
 import { getFallbackExercise } from "../content/fallbackExercises.js";
+import { validateExercisePayload } from "../core/contracts.js";
 import { TOPIC_LABELS } from "../core/constants.js";
 
 function normalizeTests(tests, fallbackTests) {
@@ -18,6 +19,7 @@ function normalizeTests(tests, fallbackTests) {
 }
 
 function normalizeExercise(raw, fallback, topicKey, difficulty, meta) {
+  const normalizedSourceMeta = meta ?? { source: "fallback" };
   const concepts = Array.isArray(raw.concepts) && raw.concepts.length ? raw.concepts : fallback.concepts;
   const rubric = Array.isArray(raw.rubric) && raw.rubric.length ? raw.rubric : fallback.rubric;
 
@@ -36,7 +38,7 @@ function normalizeExercise(raw, fallback, topicKey, difficulty, meta) {
     concepts,
     rubric,
     tests: normalizeTests(raw.tests, fallback.tests),
-    source: meta.source
+    source: normalizedSourceMeta.source
   };
 }
 
@@ -82,9 +84,20 @@ export class ExerciseGenerator {
     const prompt = buildExercisePrompt({ topicKey, difficulty });
     const result = await this.ollamaClient.generateJson({
       prompt,
-      fallback
+      fallback,
+      validate: validateExercisePayload
     });
 
-    return normalizeExercise(result.data, fallback, topicKey, difficulty, result.meta);
+    const validation = validateExercisePayload(result.data);
+    const safeData = validation.ok ? result.data : fallback;
+    const safeMeta = validation.ok
+      ? result.meta
+      : {
+          ...result.meta,
+          source: "fallback",
+          reason: "schema mismatch after client validation"
+        };
+
+    return normalizeExercise(safeData, fallback, topicKey, difficulty, safeMeta);
   }
 }

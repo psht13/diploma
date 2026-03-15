@@ -1,3 +1,5 @@
+import { buildRunErrorSignature } from "../core/runResult.js";
+
 const DEFAULT_USER_STATE = {
   knowledgeLevel: "початковий",
   errorHistory: [],
@@ -37,24 +39,6 @@ function deriveKnowledgeLevel(currentLevel, attemptsCount, runResult) {
   }
 
   return currentLevel;
-}
-
-function buildErrorSignature(runResult) {
-  if (!runResult) {
-    return null;
-  }
-
-  if (runResult.syntaxError) {
-    return `syntax:${runResult.syntaxError}`;
-  }
-
-  const firstFailure = runResult.failures?.[0];
-
-  if (!firstFailure) {
-    return null;
-  }
-
-  return `test:${firstFailure.name}:${JSON.stringify(firstFailure.expected)}`;
 }
 
 export class SessionMemory {
@@ -103,7 +87,7 @@ export class SessionMemory {
       runResult
     );
 
-    const errorSignature = buildErrorSignature(runResult);
+    const errorSignature = buildRunErrorSignature(runResult);
 
     if (errorSignature) {
       this.userState.errorHistory = [

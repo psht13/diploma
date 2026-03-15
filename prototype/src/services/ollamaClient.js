@@ -1,4 +1,5 @@
 import { DEFAULT_MODEL, MAX_JSON_RETRIES, OLLAMA_BASE_URL } from "../core/constants.js";
+import { formatValidationErrors } from "../core/contracts.js";
 import { extractJsonBlock } from "../core/json.js";
 
 async function fetchWithTimeout(url, options = {}, timeoutMs = 4000) {
@@ -44,7 +45,13 @@ export class OllamaClient {
     }
   }
 
-  async generateJson({ prompt, fallback, maxRetries = MAX_JSON_RETRIES, temperature = 0.2 }) {
+  async generateJson({
+    prompt,
+    fallback,
+    validate,
+    maxRetries = MAX_JSON_RETRIES,
+    temperature = 0.2
+  }) {
     let lastError = null;
 
     for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
@@ -76,6 +83,14 @@ export class OllamaClient {
 
         if (!parsed) {
           throw new Error("Model response does not contain valid JSON");
+        }
+
+        if (validate) {
+          const validation = validate(parsed);
+
+          if (!validation.ok) {
+            throw new Error(`Schema mismatch: ${formatValidationErrors(validation)}`);
+          }
         }
 
         return {

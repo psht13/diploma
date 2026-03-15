@@ -1,3 +1,5 @@
+import { validateFeedbackPayload } from "../core/contracts.js";
+
 function formatFailure(failure) {
   if (!failure) {
     return "Точковий збій ще не визначено.";
@@ -11,12 +13,22 @@ function formatFailure(failure) {
   return `Тест «${failure.name}» не пройдено: очікувалося ${expectedValue}, отримано ${actualValue}.`;
 }
 
+function buildConceptExplanation({ exercise, runResult }) {
+  const functionName = exercise?.functionName || "потрібна функція";
+  const concepts = Array.isArray(exercise?.concepts) ? exercise.concepts.slice(0, 3) : [];
+  const conceptsText = concepts.length ? concepts.join(", ") : "базові операції JavaScript";
+  const failureName = runResult?.failures?.[0]?.name;
+  const failureFocus = failureName
+    ? ` Почніть зі сценарію «${failureName}» і перевірте, яке значення функція має повернути саме там.`
+    : "";
+
+  return `У цій вправі важливо спочатку визначити контракт функції ${functionName}: які аргументи вона отримує, як опрацьовує дані через ${conceptsText} і яке значення повертає.${failureFocus}`;
+}
+
 function buildFallbackFeedback({ exercise, runResult, userState, policy, studentRequest }) {
   if (policy.action === "concept_explanation") {
     return {
-      summary:
-        studentRequest ||
-        `Пояснення для теми «${exercise.topic}»: спочатку визначте, які вхідні дані отримує функція і яке значення вона має повернути.`,
+      summary: buildConceptExplanation({ exercise, runResult }),
       nextStep:
         "Спробуйте власними словами сформулювати алгоритм у 2-3 кроках, а потім перенесіть його в код.",
       tutorStyle: "conceptual",
@@ -105,12 +117,13 @@ ${JSON.stringify(
 }
 
 function normalizeFeedback(raw, fallback, meta) {
+  const normalizedSourceMeta = meta ?? { source: "fallback" };
   return {
     summary: typeof raw.summary === "string" ? raw.summary : fallback.summary,
     nextStep: typeof raw.nextStep === "string" ? raw.nextStep : fallback.nextStep,
     tutorStyle: typeof raw.tutorStyle === "string" ? raw.tutorStyle : fallback.tutorStyle,
     revealLevel: typeof raw.revealLevel === "string" ? raw.revealLevel : fallback.revealLevel,
-    source: meta.source
+    source: normalizedSourceMeta.source
   };
 }
 
@@ -136,9 +149,20 @@ export class FeedbackEvaluator {
     });
     const result = await this.ollamaClient.generateJson({
       prompt,
-      fallback
+      fallback,
+      validate: validateFeedbackPayload
     });
 
-    return normalizeFeedback(result.data, fallback, result.meta);
+    const validation = validateFeedbackPayload(result.data);
+    const safeData = validation.ok ? result.data : fallback;
+    const safeMeta = validation.ok
+      ? result.meta
+      : {
+          ...result.meta,
+          source: "fallback",
+          reason: "schema mismatch after client validation"
+        };
+
+    return normalizeFeedback(safeData, fallback, safeMeta);
   }
 }
