@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "check": "node scripts/check-prototype.mjs",
     "serve": "python3 -m http.server 4173",
     "test": "node --test prototype/tests/*.test.mjs"
   }

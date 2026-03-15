@@ -17,11 +17,22 @@ function buildFailedRunResult(name = "тест 1") {
   };
 }
 
-test("TutorPolicy prioritizes explanation requests", () => {
+test("TutorPolicy prioritizes explanation requests from natural language", () => {
   const policy = decideTutorAction({
     userState: { attemptsCount: 0, errorHistory: [] },
     runResult: null,
     studentRequest: "Поясни, як це працює"
+  });
+
+  assert.equal(policy.action, "concept_explanation");
+});
+
+test("TutorPolicy respects explicit explain interaction mode even without explanation keywords", () => {
+  const policy = decideTutorAction({
+    userState: { attemptsCount: 2, errorHistory: [] },
+    runResult: buildFailedRunResult("помилка"),
+    studentRequest: "Що робити далі?",
+    interactionMode: "explain"
   });
 
   assert.equal(policy.action, "concept_explanation");

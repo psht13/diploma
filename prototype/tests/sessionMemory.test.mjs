@@ -28,3 +28,43 @@ test("SessionMemory records run result and increments attempts", () => {
   assert.equal(memory.getUserState().attemptsCount, 1);
   assert.equal(memory.getUserState().errorHistory[0].detail, "demo");
 });
+
+test("SessionMemory builds lightweight session export for experiments", () => {
+  const memory = new SessionMemory();
+  memory.resetForExercise({
+    ...exercise,
+    difficulty: "basic"
+  });
+  memory.addStudentMessage("Моя перша спроба");
+  memory.recordRunResult({
+    status: "failed",
+    allPassed: false,
+    passedCount: 1,
+    totalCount: 2,
+    syntaxError: null,
+    failures: [{ name: "demo", expected: 1, actual: 0 }]
+  });
+  memory.noteTutorAction("concept_explanation");
+
+  const exported = memory.buildSessionExport({
+    timestamp: "2026-03-15T10:00:00.000Z"
+  });
+
+  assert.deepEqual(Object.keys(exported), [
+    "topic",
+    "difficulty",
+    "attemptsCount",
+    "firstFailure",
+    "lastAction",
+    "transcript",
+    "finalRunStatus",
+    "timestamp"
+  ]);
+  assert.equal(exported.topic, "Функції");
+  assert.equal(exported.difficulty, "basic");
+  assert.equal(exported.attemptsCount, 1);
+  assert.equal(exported.firstFailure.detail, "demo");
+  assert.equal(exported.lastAction, "concept_explanation");
+  assert.equal(exported.finalRunStatus.status, "failed");
+  assert.equal(exported.timestamp, "2026-03-15T10:00:00.000Z");
+});

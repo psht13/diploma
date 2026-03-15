@@ -19,6 +19,7 @@ const ui = {
   questionInput: document.querySelector("#question-input"),
   runTestsBtn: document.querySelector("#run-tests-btn"),
   explainBtn: document.querySelector("#explain-btn"),
+  exportSessionBtn: document.querySelector("#export-session-btn"),
   testSummary: document.querySelector("#test-summary"),
   feedbackCard: document.querySelector("#feedback-card"),
   userStateCard: document.querySelector("#user-state-card"),
@@ -213,6 +214,18 @@ function logUiError(context, error) {
   console.error(`[ui:${context}]`, error);
 }
 
+function downloadJsonFile(filename, data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json;charset=utf-8"
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 async function refreshStatus() {
   const model = syncActiveModel();
   ui.llmStatus.textContent = "Перевірка підключення...";
@@ -258,13 +271,20 @@ async function handleGenerateExercise() {
   }
 }
 
-async function deliverTutorFeedback({ runResult, studentRequest = "" }) {
+async function deliverTutorFeedback({
+  runResult,
+  studentRequest = "",
+  interactionMode = "default",
+  forceExplanation = false
+}) {
   syncActiveModel();
   const userState = sessionMemory.getUserState();
   const policy = decideTutorAction({
     userState,
     runResult,
-    studentRequest
+    studentRequest,
+    interactionMode,
+    forceExplanation
   });
   const feedback = await feedbackEvaluator.evaluate({
     exercise: currentExercise,
@@ -340,7 +360,8 @@ async function handleExplainRequest() {
   try {
     await deliverTutorFeedback({
       runResult: sessionMemory.getLastRunResult(),
-      studentRequest
+      studentRequest,
+      interactionMode: "explain"
     });
   } catch (error) {
     logUiError("explainRequest", error);
@@ -353,6 +374,31 @@ async function handleExplainRequest() {
   }
 }
 
+function handleSessionExport() {
+  const exportPayload = sessionMemory.buildSessionExport();
+  const safeTopic = (exportPayload.topic || "session")
+    .toLowerCase()
+    .replaceAll(/[^a-zа-яіїєґ0-9]+/gi, "-")
+    .replaceAll(/^-+|-+$/g, "");
+  const timestampPart = exportPayload.timestamp.replaceAll(/[:.]/g, "-");
+  const filename = `ains-session-${safeTopic || "session"}-${timestampPart}.json`;
+
+  try {
+    downloadJsonFile(filename, exportPayload);
+    renderSystemFeedback({
+      summary: "JSON-експорт сесії підготовлено.",
+      nextStep:
+        "Файл містить тему, складність, кількість спроб, першу помилку, transcript і фінальний статус прогону."
+    });
+  } catch (error) {
+    logUiError("sessionExport", error);
+    renderSystemFeedback({
+      summary: "Не вдалося експортувати сесію.",
+      nextStep: "Повторіть спробу або перевірте browser permissions для завантаження файлів."
+    });
+  }
+}
+
 ui.refreshStatusBtn.addEventListener("click", refreshStatus);
 ui.modelInput.addEventListener("input", () => {
   const selectedModel = ui.modelInput.value.trim() || DEFAULT_MODEL;
@@ -361,6 +407,7 @@ ui.modelInput.addEventListener("input", () => {
 ui.generateBtn.addEventListener("click", handleGenerateExercise);
 ui.runTestsBtn.addEventListener("click", handleRunTests);
 ui.explainBtn.addEventListener("click", handleExplainRequest);
+ui.exportSessionBtn.addEventListener("click", handleSessionExport);
 
 renderExercise(null);
 renderTestSummary(null);

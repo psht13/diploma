@@ -1,11 +1,29 @@
 import { buildRunErrorSignature } from "../core/runResult.js";
 
-function isExplanationRequest(studentRequest = "") {
+function hasExplicitExplanationMode({ interactionMode = "default", forceExplanation = false } = {}) {
+  return forceExplanation || interactionMode === "explain";
+}
+
+function isNaturalLanguageExplanationRequest(studentRequest = "") {
   return /поясн|чому|як працює|explain/i.test(studentRequest);
 }
 
-export function decideTutorAction({ userState, runResult, studentRequest = "" }) {
-  if (isExplanationRequest(studentRequest)) {
+export function decideTutorAction({
+  userState,
+  runResult,
+  studentRequest = "",
+  interactionMode = "default",
+  forceExplanation = false
+}) {
+  if (hasExplicitExplanationMode({ interactionMode, forceExplanation })) {
+    return {
+      action: "concept_explanation",
+      hintLevel: "conceptual",
+      rationale: "Увімкнено явний режим пояснення."
+    };
+  }
+
+  if (isNaturalLanguageExplanationRequest(studentRequest)) {
     return {
       action: "concept_explanation",
       hintLevel: "conceptual",

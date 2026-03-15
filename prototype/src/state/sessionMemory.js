@@ -47,14 +47,17 @@ export class SessionMemory {
   }
 
   resetAll() {
+    this.sessionStartedAt = new Date().toISOString();
     this.exercise = null;
     this.transcript = [];
     this.userState = structuredClone(DEFAULT_USER_STATE);
+    this.firstFailure = null;
     this.lastRunResult = null;
     this.lastErrorSignature = null;
   }
 
   resetForExercise(exercise) {
+    this.sessionStartedAt = new Date().toISOString();
     this.exercise = structuredClone(exercise);
     this.transcript = [];
     this.userState = {
@@ -90,6 +93,15 @@ export class SessionMemory {
     const errorSignature = buildRunErrorSignature(runResult);
 
     if (errorSignature) {
+      if (!this.firstFailure) {
+        this.firstFailure = {
+          signature: errorSignature,
+          kind: runResult.syntaxError ? "syntax" : "test",
+          detail: runResult.syntaxError || runResult.failures?.[0]?.name || "unknown",
+          timestamp: new Date().toISOString()
+        };
+      }
+
       this.userState.errorHistory = [
         {
           signature: errorSignature,
@@ -121,6 +133,27 @@ export class SessionMemory {
 
   getTranscript() {
     return this.transcript.map((entry) => ({ ...entry }));
+  }
+
+  buildSessionExport({ timestamp = new Date().toISOString() } = {}) {
+    return {
+      topic: this.exercise?.topic ?? this.userState.currentTopic,
+      difficulty: this.exercise?.difficulty ?? null,
+      attemptsCount: this.userState.attemptsCount,
+      firstFailure: this.firstFailure ? structuredClone(this.firstFailure) : null,
+      lastAction: this.userState.lastAction,
+      transcript: this.getTranscript(),
+      finalRunStatus: this.lastRunResult
+        ? {
+            status: this.lastRunResult.status,
+            allPassed: this.lastRunResult.allPassed,
+            syntaxError: this.lastRunResult.syntaxError,
+            passedCount: this.lastRunResult.passedCount,
+            totalCount: this.lastRunResult.totalCount
+          }
+        : null,
+      timestamp
+    };
   }
 
   buildFeedbackContext(studentRequest = "") {
