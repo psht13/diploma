@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -10,7 +11,7 @@ from pypdf import PdfReader
 from docx import Document
 from docx.enum.style import WD_STYLE_TYPE
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Mm, Pt
@@ -19,11 +20,14 @@ from docx.text.paragraph import Paragraph
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DOC_VERSION = os.environ.get("COURSEWORK_DOC_VERSION", "v2")
+DOC_SUFFIX = f"_{DOC_VERSION}" if DOC_VERSION else ""
+DOC_BASENAME = f"coursework_draft_ua_submission_ready{DOC_SUFFIX}"
 SOURCE_DOC = ROOT / "assets" / "coursework_draft_ua_submission_ready.docx"
-TARGET_DOC = ROOT / "output" / "coursework_draft_ua_submission_ready_v2.docx"
-WORK_DIR = ROOT / "tmp" / "docs" / "submission_ready_v2"
-STAGE_DOC = WORK_DIR / "coursework_submission_stage_v2.docx"
-PDF_PATH = WORK_DIR / "coursework_draft_ua_submission_ready_v2.pdf"
+TARGET_DOC = ROOT / "output" / f"{DOC_BASENAME}.docx"
+WORK_DIR = ROOT / "tmp" / "docs" / f"submission_ready{DOC_SUFFIX}"
+STAGE_DOC = WORK_DIR / f"coursework_submission_stage{DOC_SUFFIX}.docx"
+PDF_PATH = WORK_DIR / f"{DOC_BASENAME}.pdf"
 PNG_DIR = WORK_DIR / "png"
 DIAGRAM_DIR = ROOT / "docs" / "codex" / "diagram_assets"
 
@@ -175,6 +179,10 @@ def remove_content_between(start_paragraph: Paragraph, end_paragraph: Paragraph)
         node = next_node
 
 
+def is_section_properties(element) -> bool:
+    return element.tag == qn("w:sectPr")
+
+
 def find_paragraph_exact(document: Document, text: str) -> Paragraph:
     for paragraph in document.paragraphs:
         if paragraph.text.strip() == text:
@@ -220,6 +228,14 @@ def shade_paragraph(paragraph: Paragraph, fill: str) -> None:
     shd.set(qn("w:val"), "clear")
     shd.set(qn("w:color"), "auto")
     shd.set(qn("w:fill"), fill)
+
+
+def set_row_cant_split(row) -> None:
+    tr_pr = row._tr.get_or_add_trPr()
+    if tr_pr.find(qn("w:cantSplit")) is None:
+        cant_split = OxmlElement("w:cantSplit")
+        cant_split.set(qn("w:val"), "1")
+        tr_pr.append(cant_split)
 
 
 def format_title_topic(paragraph: Paragraph) -> None:
@@ -427,7 +443,9 @@ def replace_text_content(document: Document) -> None:
                 paragraph.text.replace("`", "")
                 .replace("LLM-based", "LLM-орієнтованих")
                 .replace("retrieval-шаром", "шаром пошуку")
+                .replace("ШІ-репетитор systems", "систем-репетиторів на основі ШІ")
                 .replace("AI tutor", "ШІ-репетитор")
+                .replace("e-learning платформ", "платформ електронного навчання")
                 .replace("GPT-4-based UX", "інтерфейс на основі GPT-4")
                 .replace("Roleplay, Explain My Answer, ", "рольова взаємодія, пояснення відповіді, ")
                 .replace("retry/fallback", "повторні спроби та резервний режим")
@@ -665,11 +683,13 @@ def update_tables(document: Document) -> None:
         for column_index, value in enumerate(row_values):
             table.cell(row_index, column_index).text = value
 
-    for table in document.tables[1:]:
+    for table_index, table in enumerate(document.tables[1:], start=1):
         table.style = "Table Grid"
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        compact_table = table_index == 3
         for row_index, row in enumerate(table.rows):
             tr_pr = row._tr.get_or_add_trPr()
+            set_row_cant_split(row)
             if row_index == 0 and tr_pr.find(qn("w:tblHeader")) is None:
                 header = OxmlElement("w:tblHeader")
                 header.set(qn("w:val"), "true")
@@ -683,10 +703,10 @@ def update_tables(document: Document) -> None:
                     paragraph.paragraph_format.first_line_indent = Mm(0)
                     paragraph.paragraph_format.space_before = Pt(0)
                     paragraph.paragraph_format.space_after = Pt(0)
-                    paragraph.paragraph_format.line_spacing = 1.0
+                    paragraph.paragraph_format.line_spacing = 0.95 if compact_table else 1.0
                     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER if row_index == 0 else WD_ALIGN_PARAGRAPH.LEFT
                     for run in paragraph.runs:
-                        set_run_font(run, size=12, bold=row_index == 0)
+                        set_run_font(run, size=11 if compact_table else 12, bold=row_index == 0)
                     set_paragraph_language(paragraph, UK_LANG)
 
 
@@ -759,6 +779,8 @@ def rebuild_appendices(document: Document) -> None:
     end_node = appendix_g._p.getnext()
     while end_node is not None:
         next_node = end_node.getnext()
+        if is_section_properties(end_node):
+            break
         remove_element(end_node)
         end_node = next_node
 
@@ -771,14 +793,18 @@ def rebuild_appendices(document: Document) -> None:
     cursor = intro
 
     appendix_images = [
-        ("Діаграма А.1. Копія рисунка 3.1: компонентна архітектура АІНС.", DIAGRAM_DIR / "figure_3_1_component_architecture.png"),
-        ("Діаграма А.2. Копія рисунка 3.2: структура UserState та зв'язок із SessionMemory.", DIAGRAM_DIR / "figure_3_2_session_memory.png"),
-        ("Діаграма А.3. Копія рисунка 3.3: послідовність сценарію навчальної взаємодії.", DIAGRAM_DIR / "figure_3_3_sequence.png"),
-        ("Діаграма А.4. Копія рисунка 4.1: схема виконання прототипу з локальною LLM.", DIAGRAM_DIR / "figure_4_1_runtime.png"),
+        ("Діаграма А.1. Копія рисунка 3.1: компонентна архітектура АІНС.", DIAGRAM_DIR / "figure_3_1_component_architecture.png", 155),
+        ("Діаграма А.2. Копія рисунка 3.2: структура UserState та зв'язок із SessionMemory.", DIAGRAM_DIR / "figure_3_2_session_memory.png", 154),
+        ("Діаграма А.3. Копія рисунка 3.3: послідовність сценарію навчальної взаємодії.", DIAGRAM_DIR / "figure_3_3_sequence.png", 160),
+        ("Діаграма А.4. Копія рисунка 4.1: схема виконання прототипу з локальною LLM.", DIAGRAM_DIR / "figure_4_1_runtime.png", 160),
     ]
-    for label, image_path in appendix_images:
+    for index, (label, image_path, width_mm) in enumerate(appendix_images):
+        if index:
+            cursor = insert_paragraph_after(cursor, style_name="Normal")
+            cursor.paragraph_format.first_line_indent = Mm(0)
+            cursor.add_run().add_break(WD_BREAK.PAGE)
         cursor = add_listing_caption(cursor, label)
-        cursor = insert_picture_after(cursor, image_path, width_mm=138)
+        cursor = insert_picture_after(cursor, image_path, width_mm=width_mm)
         cursor = add_source_note(cursor, "Примітка: зменшена копія рисунка з основного тексту роботи.")
 
     cursor = appendix_b
@@ -1086,6 +1112,8 @@ def verify_document(document: Document) -> None:
     for marker in forbidden:
         if marker in full_text:
             raise ValueError(f"Forbidden fragment remained in document: {marker}")
+    if len(document.sections) == 0:
+        raise ValueError("Section properties were lost while rebuilding the document.")
 
 
 def build_stage_document() -> Document:
