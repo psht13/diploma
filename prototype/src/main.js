@@ -20,6 +20,7 @@ const ui = {
   runTestsBtn: document.querySelector("#run-tests-btn"),
   explainBtn: document.querySelector("#explain-btn"),
   exportSessionBtn: document.querySelector("#export-session-btn"),
+  activityCard: document.querySelector("#activity-card"),
   testSummary: document.querySelector("#test-summary"),
   feedbackCard: document.querySelector("#feedback-card"),
   userStateCard: document.querySelector("#user-state-card"),
@@ -32,6 +33,35 @@ const feedbackEvaluator = new FeedbackEvaluator({ ollamaClient });
 const sessionMemory = new SessionMemory();
 
 let currentExercise = null;
+let activeUiTask = null;
+
+const BUTTON_COPY = {
+  refreshStatus: {
+    element: ui.refreshStatusBtn,
+    idle: "Оновити статус",
+    busy: "Перевіряється..."
+  },
+  generateExercise: {
+    element: ui.generateBtn,
+    idle: "Згенерувати вправу",
+    busy: "Генерується вправа..."
+  },
+  runTests: {
+    element: ui.runTestsBtn,
+    idle: "Запустити тести",
+    busy: "Виконується перевірка..."
+  },
+  explainRequest: {
+    element: ui.explainBtn,
+    idle: "Пояснити тему",
+    busy: "Готується пояснення..."
+  },
+  exportSession: {
+    element: ui.exportSessionBtn,
+    idle: "Експортувати сесію JSON",
+    busy: "Готується експорт..."
+  }
+};
 
 function syncActiveModel() {
   const selectedModel = ui.modelInput.value.trim() || DEFAULT_MODEL;
@@ -40,11 +70,110 @@ function syncActiveModel() {
 }
 
 function escapeHtml(value) {
-  return value
+  return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function buildPendingMarkup(title, detail) {
+  return `
+    <div class="pending-stack">
+      <span class="spinner" aria-hidden="true"></span>
+      <div class="pending-copy">
+        <p class="pending-title">${escapeHtml(title)}</p>
+        <p>${escapeHtml(detail)}</p>
+      </div>
+    </div>
+  `;
+}
+
+function buildInlineStatusMarkup(text) {
+  return `
+    <span class="status-inline">
+      <span class="spinner spinner-inline" aria-hidden="true"></span>
+      <span>${escapeHtml(text)}</span>
+    </span>
+  `;
+}
+
+function waitForPaint() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+}
+
+function setUiTask(task) {
+  activeUiTask = task;
+  renderActivityCard();
+  renderTranscript();
+  syncActionButtons();
+}
+
+function clearUiTask(key) {
+  if (!activeUiTask) {
+    return;
+  }
+
+  if (key && activeUiTask.key !== key) {
+    return;
+  }
+
+  activeUiTask = null;
+  renderActivityCard();
+  renderTranscript();
+  syncActionButtons();
+}
+
+function isButtonDisabled(key) {
+  if (!activeUiTask) {
+    return false;
+  }
+
+  if (activeUiTask.key === key) {
+    return true;
+  }
+
+  return activeUiTask.lockScope === "all" && key !== "refreshStatus";
+}
+
+function syncActionButtons() {
+  Object.entries(BUTTON_COPY).forEach(([key, config]) => {
+    config.element.disabled = isButtonDisabled(key);
+    config.element.textContent = activeUiTask?.key === key ? config.busy : config.idle;
+  });
+}
+
+function renderActivityCard() {
+  if (!activeUiTask) {
+    ui.activityCard.className = "activity-card idle";
+    ui.activityCard.innerHTML = `
+      <div class="pending-copy">
+        <p class="pending-title">Система готова до взаємодії</p>
+        <p>Статус агента, генерації, перевірки та експорту завжди показується явно.</p>
+      </div>
+    `;
+    return;
+  }
+
+  ui.activityCard.className = "activity-card pending";
+  ui.activityCard.innerHTML = buildPendingMarkup(activeUiTask.title, activeUiTask.detail);
+}
+
+function renderExercisePending(title, detail) {
+  ui.exerciseCard.className = "exercise-card pending-state";
+  ui.exerciseCard.innerHTML = buildPendingMarkup(title, detail);
+}
+
+function renderSummaryPending(title, detail) {
+  ui.testSummary.className = "summary-card pending-state";
+  ui.testSummary.innerHTML = buildPendingMarkup(title, detail);
+}
+
+function renderFeedbackPending(title, detail) {
+  ui.feedbackCard.className = "feedback-card pending-state";
+  ui.feedbackCard.innerHTML = buildPendingMarkup(title, detail);
 }
 
 function renderExercise(exercise) {
@@ -177,9 +306,18 @@ function renderUserState() {
 
 function renderTranscript() {
   const transcript = sessionMemory.getTranscript();
+  const pendingMarkup =
+    activeUiTask?.showTranscriptBubble
+      ? `
+        <article class="message tutor pending" aria-live="polite">
+          <p class="message-role">Репетитор</p>
+          ${buildPendingMarkup(activeUiTask.title, activeUiTask.detail)}
+        </article>
+      `
+      : "";
 
   if (!transcript.length) {
-    ui.transcript.innerHTML = "<p class=\"empty-state\">Діалог ще не розпочато.</p>";
+    ui.transcript.innerHTML = pendingMarkup || "<p class=\"empty-state\">Діалог ще не розпочато.</p>";
     return;
   }
 
@@ -192,7 +330,7 @@ function renderTranscript() {
         </article>
       `
     )
-    .join("");
+    .join("") + pendingMarkup;
 }
 
 function renderInitialDemoNote() {
@@ -229,7 +367,14 @@ function downloadJsonFile(filename, data) {
 
 async function refreshStatus() {
   const model = syncActiveModel();
-  ui.llmStatus.textContent = "Перевірка підключення...";
+  setUiTask({
+    key: "refreshStatus",
+    title: "Перевіряється стан моделі...",
+    detail: "Оновлюємо доступність Ollama та шукаємо локальну модель для наступного запиту.",
+    lockScope: "self",
+    showTranscriptBubble: false
+  });
+  ui.llmStatus.innerHTML = buildInlineStatusMarkup("Перевіряється стан моделі...");
 
   try {
     const status = await ollamaClient.getStatus();
@@ -237,13 +382,32 @@ async function refreshStatus() {
   } catch (error) {
     logUiError("refreshStatus", error);
     ui.llmStatus.textContent = `Не вдалося перевірити модель ${model}. Буде використано fallback-режим.`;
+  } finally {
+    clearUiTask("refreshStatus");
   }
 }
 
 async function handleGenerateExercise() {
   syncActiveModel();
-  ui.generateBtn.disabled = true;
-  ui.generateBtn.textContent = "Генерація...";
+  setUiTask({
+    key: "generateExercise",
+    title: "Генерується вправа...",
+    detail: "Агент формує JSON-вправу або переходить у fallback-режим без зависання інтерфейсу.",
+    lockScope: "all",
+    showTranscriptBubble: true
+  });
+  renderExercisePending(
+    "Генерується вправа...",
+    "Після завершення тут з'являться умова, starter code і тести."
+  );
+  renderSummaryPending(
+    "Очікуємо нове завдання...",
+    "Результати тестів з'являться після першого прогону для нової вправи."
+  );
+  renderFeedbackPending(
+    "Агент готує стартовий контекст...",
+    "Після генерації тут з'явиться фідбек або системне повідомлення."
+  );
 
   try {
     currentExercise = await exerciseGenerator.generate({
@@ -267,8 +431,7 @@ async function handleGenerateExercise() {
         "Перевірте параметри моделі або повторіть спробу. Якщо Ollama недоступна, прототип має перейти у fallback-режим."
     });
   } finally {
-    ui.generateBtn.disabled = false;
-    ui.generateBtn.textContent = "Згенерувати вправу";
+    clearUiTask("generateExercise");
   }
 }
 
@@ -314,9 +477,24 @@ async function handleRunTests() {
     return;
   }
 
-  ui.runTestsBtn.disabled = true;
+  setUiTask({
+    key: "runTests",
+    title: "Виконується перевірка...",
+    detail: "Код запускається у Web Worker, після чого агент підбере наступний крок.",
+    lockScope: "all",
+    showTranscriptBubble: true
+  });
+  renderSummaryPending(
+    "Виконується перевірка...",
+    "Тести виконуються у клієнтському ізольованому середовищі."
+  );
+  renderFeedbackPending(
+    "Агент очікує результати тестів...",
+    "Щойно sandbox завершить виконання, тут з'явиться адаптивний фідбек."
+  );
   const studentCode = ui.codeInput.value;
   sessionMemory.addStudentMessage(`Спроба ${sessionMemory.getUserState().attemptsCount + 1}.`);
+  renderTranscript();
 
   try {
     const runResult = await runExerciseTests({
@@ -326,6 +504,17 @@ async function handleRunTests() {
 
     sessionMemory.recordRunResult(runResult);
     renderTestSummary(runResult);
+    setUiTask({
+      key: "runTests",
+      title: "Агент формує відповідь...",
+      detail: "Вибирається рівень підказки відповідно до результатів тестів та історії помилок.",
+      lockScope: "all",
+      showTranscriptBubble: true
+    });
+    renderFeedbackPending(
+      "Агент формує відповідь...",
+      "Фідбек з'явиться після аналізу першого збою та вибору педагогічної дії."
+    );
     await deliverTutorFeedback({ runResult });
   } catch (error) {
     logUiError("runTests", error);
@@ -343,20 +532,35 @@ async function handleRunTests() {
       nextStep: "Повторіть спробу. Деталі помилки виведено в console для діагностики."
     });
   } finally {
-    ui.runTestsBtn.disabled = false;
+    clearUiTask("runTests");
   }
 }
 
 async function handleExplainRequest() {
   if (!currentExercise) {
+    renderSystemFeedback({
+      summary: "Спочатку потрібно підготувати вправу.",
+      nextStep: "Згенеруйте завдання, а потім попросіть пояснення теми або алгоритму."
+    });
     return;
   }
 
-  ui.explainBtn.disabled = true;
   const studentRequest =
     ui.questionInput.value.trim() ||
     `Поясни, як підступитися до вправи «${currentExercise.title}».`;
+  setUiTask({
+    key: "explainRequest",
+    title: "Агент готує пояснення...",
+    detail: "Формується концептуальна відповідь без повного розкриття розв'язку.",
+    lockScope: "all",
+    showTranscriptBubble: true
+  });
+  renderFeedbackPending(
+    "Агент готує пояснення...",
+    "Пояснення з'явиться після вибору концептуального режиму відповіді."
+  );
   sessionMemory.addStudentMessage(studentRequest);
+  renderTranscript();
 
   try {
     await deliverTutorFeedback({
@@ -371,11 +575,19 @@ async function handleExplainRequest() {
       nextStep: "Спробуйте ще раз. Якщо проблема повториться, перевірте console diagnostics."
     });
   } finally {
-    ui.explainBtn.disabled = false;
+    clearUiTask("explainRequest");
   }
 }
 
-function handleSessionExport() {
+async function handleSessionExport() {
+  setUiTask({
+    key: "exportSession",
+    title: "Готується JSON-експорт...",
+    detail: "Пакуємо transcript, результати прогонів і стан сесії в окремий файл.",
+    lockScope: "self",
+    showTranscriptBubble: false
+  });
+  await waitForPaint();
   const exportPayload = sessionMemory.buildSessionExport();
   const safeTopic = (exportPayload.topic || "session")
     .toLowerCase()
@@ -397,6 +609,8 @@ function handleSessionExport() {
       summary: "Не вдалося експортувати сесію.",
       nextStep: "Повторіть спробу або перевірте browser permissions для завантаження файлів."
     });
+  } finally {
+    clearUiTask("exportSession");
   }
 }
 
@@ -415,4 +629,6 @@ renderTestSummary(null);
 renderUserState();
 renderTranscript();
 renderInitialDemoNote();
+renderActivityCard();
+syncActionButtons();
 refreshStatus();

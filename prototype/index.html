@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JS Tutor Prototype</title>
+    <link rel="icon" href="data:," />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -23,7 +24,9 @@
             <span>Модель Ollama</span>
             <input id="model-input" type="text" value="llama3.1:8b" />
           </label>
-          <button id="refresh-status-btn" class="ghost-button">Оновити статус</button>
+          <div class="action-bar action-bar-compact">
+            <button id="refresh-status-btn" class="ghost-button">Оновити статус</button>
+          </div>
         </div>
       </header>
 
@@ -54,7 +57,9 @@
             </label>
           </div>
 
-          <button id="generate-btn" class="primary-button">Згенерувати вправу</button>
+          <div class="action-bar">
+            <button id="generate-btn" class="primary-button">Згенерувати вправу</button>
+          </div>
 
           <article id="exercise-card" class="exercise-card empty-state">
             Спочатку згенеруйте вправу.
@@ -93,6 +98,8 @@
             <p>Політика репетитора враховує `attemptsCount`, історію помилок і тип поточного запиту.</p>
           </div>
 
+          <div id="activity-card" class="activity-card" aria-live="polite"></div>
+
           <div id="test-summary" class="summary-card">
             Результати тестів ще відсутні.
           </div>
@@ -110,7 +117,9 @@
 
           <div id="user-state-card" class="state-grid"></div>
           <div id="transcript" class="transcript"></div>
-          <button id="export-session-btn" class="ghost-button">Експортувати сесію JSON</button>
+          <div class="action-bar action-bar-end">
+            <button id="export-session-btn" class="ghost-button">Експортувати сесію JSON</button>
+          </div>
         </section>
       </main>
     </div>

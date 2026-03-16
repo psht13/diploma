@@ -1,5 +1,7 @@
 # Manual Actions
 
-- Додати живі підписи та дату, якщо кафедра вимагає друкований примірник або підписаний фінальний PDF.
-- Вписати УДК на титулі, якщо це є обов'язковою вимогою кафедри.
-- Інших обов'язкових ручних правок у `output/coursework_draft_ua_submission_ready_v5.docx` не зафіксовано.
+- Відкрити [coursework_draft_ua_submission_ready_v6.docx](/Users/pavloyurchenko/Documents/labs/diploma/output/coursework_draft_ua_submission_ready_v6.docx) у desktop Word або LibreOffice і зробити останній візуальний pass перед поданням.
+- Експортувати фінальний PDF тим самим desktop-renderer, який буде використано для submission, і ще раз переглянути титул, TOC, bibliography та appendix code pages.
+- Додати живі підписи на титулі, якщо кафедра вимагає підписаний друкований примірник або підписаний PDF.
+- Перевірити, чи кафедра вимагає окремий УДК або інший реквізит на титулі; автоматичний пайплайн цього не додає.
+- Інших обов’язкових manual text/style fixes у `v6` не зафіксовано.
