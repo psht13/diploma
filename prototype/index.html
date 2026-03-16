@@ -3,38 +3,72 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JS Tutor Prototype</title>
+    <title>Діалоговий агент-репетитор з JavaScript</title>
     <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="page-shell">
       <header class="hero">
-        <div>
-          <p class="eyebrow">AINS / JavaScript Tutor</p>
-          <h1>Локальний діалоговий агент-репетитор для базового JavaScript</h1>
+        <div class="hero-copy-block">
+          <p class="eyebrow">АІНС / JavaScript</p>
+          <h1>Діалоговий агент-репетитор для базового JavaScript</h1>
           <p class="hero-copy">
-            Мінімальний vertical slice: вправа, код, тести у Web Worker, адаптивний фідбек.
+            Практичний сценарій навчальної взаємодії: вправа, розв'язок, перевірка, пояснення та
+            адаптивний фідбек.
           </p>
+          <div class="hero-highlights" aria-label="Ключові можливості прототипу">
+            <span class="hero-highlight">Генерація вправи</span>
+            <span class="hero-highlight">Перевірка в Web Worker</span>
+            <span class="hero-highlight">Режим пояснення</span>
+            <span class="hero-highlight">Пам'ять сесії</span>
+          </div>
         </div>
-        <div class="status-card">
-          <p class="status-label">Режим LLM</p>
-          <p id="llm-status" class="status-value">Перевірка підключення...</p>
+
+        <aside id="model-status-card" class="status-card" data-state="checking">
+          <div class="status-card-head">
+            <div>
+              <p class="status-label">Статус локальної моделі</p>
+              <h2 class="status-title">Ollama / Llama</h2>
+            </div>
+            <span id="model-status-chip" class="status-chip is-checking">Перевірка</span>
+          </div>
+
+          <div id="model-status-display" class="model-status-display" aria-live="polite">
+            <p id="llm-status" class="status-value">Перевіряється стан моделі...</p>
+            <p id="llm-status-note" class="status-note">
+              Оновлюємо доступність локальної моделі та готовність резервного режиму.
+            </p>
+          </div>
+
           <label class="field">
             <span>Модель Ollama</span>
             <input id="model-input" type="text" value="llama3.1:8b" />
           </label>
+
           <div class="action-bar action-bar-compact">
-            <button id="refresh-status-btn" class="ghost-button">Оновити статус</button>
+            <button id="refresh-status-btn" class="secondary-button">Оновити статус</button>
           </div>
-        </div>
+        </aside>
       </header>
 
       <main class="main-grid">
         <section class="panel control-panel">
           <div class="panel-heading">
-            <h2>1. Згенерувати вправу</h2>
-            <p>LLM намагається повернути структурований JSON. Якщо це не вдається, використовується fallback.</p>
+            <span class="panel-step">Крок 1</span>
+            <div>
+              <h2>Згенерувати вправу</h2>
+              <p>
+                Локальна модель формує структуровану вправу. Якщо це неможливо, система переходить
+                у резервний режим без зміни сценарію.
+              </p>
+            </div>
           </div>
 
           <div class="row">
@@ -57,19 +91,20 @@
             </label>
           </div>
 
-          <div class="action-bar">
+          <div class="action-bar action-bar-primary">
             <button id="generate-btn" class="primary-button">Згенерувати вправу</button>
           </div>
 
-          <article id="exercise-card" class="exercise-card empty-state">
-            Спочатку згенеруйте вправу.
-          </article>
+          <article id="exercise-card" class="exercise-card empty-state"></article>
         </section>
 
         <section class="panel editor-panel">
           <div class="panel-heading">
-            <h2>2. Розв'язок студента</h2>
-            <p>Код виконується лише у клієнтському ізольованому середовищі.</p>
+            <span class="panel-step">Крок 2</span>
+            <div>
+              <h2>Розв'язок студента</h2>
+              <p>Код виконується лише у клієнтському ізольованому середовищі без зміни архітектури системи.</p>
+            </div>
           </div>
 
           <label class="field">
@@ -88,35 +123,57 @@
 
           <div class="button-row">
             <button id="run-tests-btn" class="primary-button">Запустити тести</button>
-            <button id="explain-btn" class="ghost-button">Пояснити тему</button>
+            <button id="explain-btn" class="secondary-button">Пояснити тему</button>
           </div>
         </section>
 
         <section class="panel feedback-panel">
           <div class="panel-heading">
-            <h2>3. Адаптивний фідбек</h2>
-            <p>Політика репетитора враховує `attemptsCount`, історію помилок і тип поточного запиту.</p>
+            <span class="panel-step">Крок 3</span>
+            <div>
+              <h2>Адаптивний фідбек</h2>
+              <p>
+                Панель узагальнює стан взаємодії, результати перевірки та наступний педагогічний
+                крок агента.
+              </p>
+            </div>
           </div>
 
           <div id="activity-card" class="activity-card" aria-live="polite"></div>
-
-          <div id="test-summary" class="summary-card">
-            Результати тестів ще відсутні.
-          </div>
-
-          <div id="feedback-card" class="feedback-card empty-state">
-            Тут з'явиться зворотний зв'язок від агента.
-          </div>
+          <div id="test-summary" class="summary-card"></div>
+          <div id="feedback-card" class="feedback-card empty-state"></div>
         </section>
 
         <section class="panel memory-panel">
           <div class="panel-heading">
-            <h2>Session Memory</h2>
-            <p>Показано лише ту частину стану, яка реально зберігається в прототипі.</p>
+            <span class="panel-step">Крок 4</span>
+            <div>
+              <h2>Пам'ять сесії та діалог</h2>
+              <p>
+                Показано лише ту частину стану, яка фактично зберігається в прототипі й впливає на
+                подальший репетиторський сценарій.
+              </p>
+            </div>
           </div>
 
-          <div id="user-state-card" class="state-grid"></div>
-          <div id="transcript" class="transcript"></div>
+          <div class="memory-layout">
+            <section class="memory-section">
+              <div class="subsection-heading">
+                <h3>Модель стану студента</h3>
+                <p>Поточна тема, впевненість, історія помилок і остання педагогічна дія.</p>
+              </div>
+              <div id="user-state-card" class="state-grid"></div>
+            </section>
+
+            <section class="transcript-shell">
+              <div class="subsection-heading">
+                <h3>Діалог</h3>
+                <p>Тут зберігається стислий перебіг взаємодії між студентом і репетитором.</p>
+              </div>
+              <div id="transcript" class="transcript"></div>
+            </section>
+          </div>
+
           <div class="action-bar action-bar-end">
             <button id="export-session-btn" class="ghost-button">Експортувати сесію JSON</button>
           </div>

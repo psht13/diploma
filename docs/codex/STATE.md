@@ -2,41 +2,64 @@
 
 ## Статус
 
-- 16.03.2026 сформовано фінальний submission-артефакт [coursework_draft_ua_submission_ready_v6.docx](/Users/pavloyurchenko/Documents/labs/diploma/output/coursework_draft_ua_submission_ready_v6.docx).
-- Template [coursework_draft_ua_submission_ready_template.docx](/Users/pavloyurchenko/Documents/labs/diploma/assets/coursework_draft_ua_submission_ready_template.docx) розпарсено на OOXML-рівні; результати зафіксовано в [TEMPLATE_PARSE.json](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/TEMPLATE_PARSE.json) і [TEMPLATE_STYLE_MANIFEST.md](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/TEMPLATE_STYLE_MANIFEST.md).
-- Через відсутність `output/coursework_draft_ua_submission_ready_v5.docx` як editable baseline використано [coursework_submission_stage_v3.docx](/Users/pavloyurchenko/Documents/labs/diploma/tmp/docs/submission_ready_v3/coursework_submission_stage_v3.docx); фінальні `v5` PDF/PNG-артефакти та попередні нотатки використано як референс для content polish.
+- 16.03.2026 повторно розпарсено template [coursework_draft_ua_submission_ready_template.docx](/Users/pavloyurchenko/Documents/labs/diploma/assets/coursework_draft_ua_submission_ready_template.docx) і фінальний submission-ready DOCX [coursework_draft_ua_submission_ready_v6.docx](/Users/pavloyurchenko/Documents/labs/diploma/output/coursework_draft_ua_submission_ready_v6.docx).
+- Файли [TEMPLATE_PARSE.json](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/TEMPLATE_PARSE.json), [TEMPLATE_STYLE_MANIFEST.md](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/TEMPLATE_STYLE_MANIFEST.md) і [FORMAT_DEVIATION_REPORT.md](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/FORMAT_DEVIATION_REPORT.md) оновлено на основі свіжого parse/compare.
+- UI прототипу в [prototype/index.html](/Users/pavloyurchenko/Documents/labs/diploma/prototype/index.html), [prototype/styles.css](/Users/pavloyurchenko/Documents/labs/diploma/prototype/styles.css) і [main.js](/Users/pavloyurchenko/Documents/labs/diploma/prototype/src/main.js) переписано як CSS-first redesign без Tailwind і без зміни архітектури, LLM pipeline чи бізнес-логіки.
+- Обов'язковий audit проведено із застосуванням `ui-ux-pro-max`, parse DOCX і браузерної перевірки через Playwright.
 
 ## Що зроблено
 
-- Геометрію документа переведено на template-baseline: A4, поля `20 / 10 / 20 / 20 мм`, title-page section, header/footer distances `12.7 мм`.
-- Синхронізовано лічильники на титулі, в анотації та в abstract: `40 с. / pages`, `4 рисунки / figures`, `13 таблиць / tables`, `4 додатки / appendices`, `30 джерел / references`.
-- Статичний зміст перебудовано за фінальним рендером; сторінка `СПИСОК УМОВНИХ ПОЗНАЧЕНЬ` виправлена з помилкового `4` на фактичну `6`.
-- Прибрано залишкові dev-log/meta формулювання: `автентичні фрагменти`, `не вигадувалися`, `npm`, `Playwright`, `локальний виклик Ollama`, `полегшений JSON-експорт`, `ШІ-репетиторing`, `systems` у наративному тексті.
-- У 3.4 та 3.5.1 оновлено формалізацію агента: замінено сирі JSON-поля на природний опис, формулу `Topic / Attempts / Ctx / Text` замінено на `Th / N / Cx / V`.
-- У 4.4.1, 4.5 та таблицях розділу 4 нормалізовано назви перевірок до академічніших формулювань: `модульні тести`, `сценарна функціональна перевірка`, `браузерна функціональна перевірка`, `перевірка роботи локальної моделі Ollama`.
-- У списку умовних позначень вилучено рядок про `Модель стану студента`; лишено коректний рядок `UserState - спрощена модель стану студента в прототипі`.
-- Code/prompt blocks у додатках Б, В, Г збережено в моноширинному форматі; локалізація file paths, identifiers і model names у кодових фрагментах не застосовувалася.
-- Прототип у [prototype/index.html](/Users/pavloyurchenko/Documents/labs/diploma/prototype/index.html), [prototype/styles.css](/Users/pavloyurchenko/Documents/labs/diploma/prototype/styles.css) і [main.js](/Users/pavloyurchenko/Documents/labs/diploma/prototype/src/main.js) допрацьовано без Tailwind: button groups отримали рівніший gap, `activity-card` став центральним busy-state індикатором, з'явилися pending cards, transcript pending bubble, disabled states і inline loader для статусу моделі.
-
-## Підсумкові параметри `v6`
-
-- 40 сторінок.
-- 4 рисунки.
-- 13 змістовних таблиць плюс 1 службова layout-таблиця на титулі.
-- 4 додатки.
-- 30 джерел.
-- Формат сторінки: A4 (`210.009 x 297.004 мм`).
+- Узгоджено UI copy з термінологією курсової:
+  - збережено ключові терміни `вправа`, `розв'язок`, `перевірочні тести`, `режим пояснення`, `пам'ять сесії`, `модель стану студента`, `резервний режим`;
+  - прибрано сирі dev/demo формулювання на кшталт `vertical slice` і `Session Memory`.
+- Побудовано новий visual direction:
+  - спокійна академічно-нейтральна палітра;
+  - нова типографічна пара `Manrope` + `Source Serif 4`;
+  - CSS variables для кольорів, spacing scale, radius, shadows і state tones.
+- Перекомпоновано presentation layer без зміни data flow:
+  - hero з чітким статусом локальної моделі;
+  - guided flow `Крок 1-4`;
+  - `memory`-panel розширено до окремої ширини з діалогом і моделлю стану студента;
+  - transcript перетворено на повноцінний bubble-based діалог.
+- Посилено станами очікування:
+  - `checking / ready / fallback / unavailable` для локальної моделі;
+  - виразні loaders для `generate`, `run tests`, `feedback after tests`, `explain`, `export`;
+  - panel-local pending cards і transcript pending bubble.
+- Exercise/result UI переписано:
+  - вправа поділена на блоки `формулювання задачі / сигнатура / початковий код / критерії оцінювання / поняття / перевірочні тести`;
+  - test results тепер мають summary, metrics, pass/fail rows і наступний крок;
+  - feedback card відокремлює коротке пояснення від наступного кроку.
+- Зібрано нові артефакти для ручної заміни скріншотів у coursework:
+  - [before-redesign-desktop.png](/Users/pavloyurchenko/Documents/labs/diploma/output/playwright/ui-rewrite/before-redesign-desktop.png)
+  - [home-desktop.png](/Users/pavloyurchenko/Documents/labs/diploma/output/playwright/ui-rewrite/home-desktop.png)
+  - [home-mobile.png](/Users/pavloyurchenko/Documents/labs/diploma/output/playwright/ui-rewrite/home-mobile.png)
+  - [session-desktop.png](/Users/pavloyurchenko/Documents/labs/diploma/output/playwright/ui-rewrite/session-desktop.png)
 
 ## Перевірка
 
-- DOCX відрендерено в [submission_ready_v6_final](/Users/pavloyurchenko/Documents/labs/diploma/tmp/docs/submission_ready_v6_final); переглянуто титул, TOC, список умовних позначень, формульний блок 3.5.1, бібліографію та appendix code page.
-- Автоматичний style audit для `v6` не виявив paragraph-level або run-level відхилень від template-моделі; section geometry збігається з template.
-- UI перевірено в браузері через Playwright для сценаріїв `generate exercise`, `run tests`, `explain request`, `export session`; експорт JSON підтверджено фактичним download-артефактом у `.playwright-cli/`.
-- Локальні JS-тести пройдено: `node --test prototype/tests/*.mjs`.
-- Синтаксис frontend entrypoint перевірено: `node --check prototype/src/main.js`.
+- `node --check prototype/src/main.js`
+- `node --test prototype/tests/*.test.mjs`
+- Playwright verification for:
+  - status refresh
+  - generate exercise
+  - run tests
+  - explain
+  - export session
+- Під час browser pass підтверджено download JSON-експорту:
+  - [ains-session-функції-2026-03-16T09-50-45-408Z.json](/Users/pavloyurchenko/Documents/labs/diploma/output/playwright/ui-rewrite/ains-session-функції-2026-03-16T09-50-45-408Z.json)
 
-## Де лежать артефакти
+## Де лежать ключові артефакти
 
-- DOCX: [coursework_draft_ua_submission_ready_v6.docx](/Users/pavloyurchenko/Documents/labs/diploma/output/coursework_draft_ua_submission_ready_v6.docx)
-- PDF/PNG рендер: [submission_ready_v6_final](/Users/pavloyurchenko/Documents/labs/diploma/tmp/docs/submission_ready_v6_final)
-- UI validation artifacts: [output/playwright](/Users/pavloyurchenko/Documents/labs/diploma/output/playwright)
+- DOCX parse: [TEMPLATE_PARSE.json](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/TEMPLATE_PARSE.json)
+- Template style baseline: [TEMPLATE_STYLE_MANIFEST.md](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/TEMPLATE_STYLE_MANIFEST.md)
+- DOCX compare: [FORMAT_DEVIATION_REPORT.md](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/FORMAT_DEVIATION_REPORT.md)
+- UI audit: [UI_UX_AUDIT.md](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/UI_UX_AUDIT.md)
+- UI rewrite plan: [UI_REWRITE_PLAN.md](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/UI_REWRITE_PLAN.md)
+- UI copy alignment: [UI_COPY_ALIGNMENT.md](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/UI_COPY_ALIGNMENT.md)
+- UI polish notes: [UI_POLISH_NOTES.md](/Users/pavloyurchenko/Documents/labs/diploma/docs/codex/UI_POLISH_NOTES.md)
+
+## Залишок ручного контролю
+
+- Desktop Word/LibreOffice pass для фінального DOCX лишається обов'язковим.
+- Якщо в курсовій треба оновити UI screenshot, заміна в DOCX лишається ручною.
+- Якщо демонстраційне середовище буде без інтернету, треба окремо перевірити acceptable fallback для web-fonts.

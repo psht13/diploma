@@ -1,0 +1,47 @@
+{
+  "topic": "Функції",
+  "difficulty": "basic",
+  "attemptsCount": 1,
+  "firstFailure": {
+    "signature": "syntax:Не знайдено функцію sumThree",
+    "kind": "syntax",
+    "detail": "Не знайдено функцію sumThree",
+    "timestamp": "2026-03-16T09:49:18.604Z"
+  },
+  "lastAction": "concept_explanation",
+  "transcript": [
+    {
+      "role": "tutor",
+      "content": "Підготовлено вправу «Функція з трьома аргументами». Спробуйте спочатку самостійно реалізувати функцію.",
+      "timestamp": "2026-03-16T09:48:34.625Z"
+    },
+    {
+      "role": "user",
+      "content": "Запущено перевірку. Спроба 1.",
+      "timestamp": "2026-03-16T09:49:18.526Z"
+    },
+    {
+      "role": "tutor",
+      "content": "Помилка синтаксичної помилки. Не знайдено функцію sumThree.\nПеревірте, чи ви правильно створили функцію sumThree",
+      "timestamp": "2026-03-16T09:49:25.997Z"
+    },
+    {
+      "role": "user",
+      "content": "Поясни, як підійти до цієї вправи",
+      "timestamp": "2026-03-16T09:50:03.747Z"
+    },
+    {
+      "role": "tutor",
+      "content": "Вправа стосується створення функції з трьома аргументами.\nПеревірте, чи створено функцію зі збігом імен та кількістю аргументів.",
+      "timestamp": "2026-03-16T09:50:10.889Z"
+    }
+  ],
+  "finalRunStatus": {
+    "status": "error",
+    "allPassed": false,
+    "syntaxError": "Не знайдено функцію sumThree",
+    "passedCount": 0,
+    "totalCount": 3
+  },
+  "timestamp": "2026-03-16T09:50:45.408Z"
+}
