@@ -1,0 +1,8 @@
+# Ignore hidden files anywhere in the repo.
+**/.*
+
+# Keep ignore rules themselves tracked.
+!**/.gitignore
+
+# Do not blanket-ignore hidden directories such as `.github/`.
+!**/.*/
