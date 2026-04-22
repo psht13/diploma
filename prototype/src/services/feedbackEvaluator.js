@@ -1,14 +1,28 @@
 import { validateFeedbackPayload } from "../core/contracts.js";
 
+function formatReadableValue(value) {
+  if (value === undefined) {
+    return "undefined";
+  }
+
+  if (value === null) {
+    return "null";
+  }
+
+  if (typeof value === "string") {
+    return `«${value}»`;
+  }
+
+  return JSON.stringify(value);
+}
+
 function formatFailure(failure) {
   if (!failure) {
     return "Точковий збій ще не визначено.";
   }
 
-  const actualValue =
-    failure.actual === undefined ? "undefined" : JSON.stringify(failure.actual);
-  const expectedValue =
-    failure.expected === undefined ? "undefined" : JSON.stringify(failure.expected);
+  const actualValue = formatReadableValue(failure.actual);
+  const expectedValue = formatReadableValue(failure.expected);
 
   return `Тест «${failure.name}» не пройдено: очікувалося ${expectedValue}, отримано ${actualValue}.`;
 }
@@ -23,6 +37,155 @@ function buildConceptExplanation({ exercise, runResult }) {
     : "";
 
   return `У цій вправі важливо спочатку визначити контракт функції ${functionName}: які аргументи вона отримує, як опрацьовує дані через ${conceptsText} і яке значення повертає.${failureFocus}`;
+}
+
+function formatPromptValue(value, fallback = "none") {
+  if (Array.isArray(value)) {
+    return value.length ? value.join(", ") : fallback;
+  }
+
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+
+  return String(value);
+}
+
+function describeFailureInput(failure) {
+  if (!failure || !Array.isArray(failure.args) || failure.args.length === 0) {
+    return "цього прикладу";
+  }
+
+  if (failure.args.length === 1) {
+    const [value] = failure.args;
+
+    if (Array.isArray(value)) {
+      return `масиву ${formatReadableValue(value)}`;
+    }
+
+    if (value && typeof value === "object") {
+      return `об'єкта ${formatReadableValue(value)}`;
+    }
+
+    return `значення ${formatReadableValue(value)}`;
+  }
+
+  return `аргументів ${formatReadableValue(failure.args)}`;
+}
+
+function inferLogicFocus({ exercise, failure }) {
+  const firstArg = failure?.args?.[0];
+
+  if (firstArg && typeof firstArg === "object" && !Array.isArray(firstArg)) {
+    return "Перевірте, чи ви проходите всі ключі об'єкта і для кожного ключа правильно рахуєте кількість значень.";
+  }
+
+  if (Array.isArray(firstArg)) {
+    return "Перевірте, чи ви проходите всі елементи масиву і оновлюєте результат на кожній ітерації, а не лише в одному випадку.";
+  }
+
+  if (typeof firstArg === "string") {
+    return "Перевірте, чи ви читаєте потрібний рядок або символ і повертаєте значення саме для цього сценарію.";
+  }
+
+  if (typeof firstArg === "number") {
+    return "Перевірте, чи обчислення для цього числа взагалі доходить до return і не зупиняється на null або undefined.";
+  }
+
+  const concepts = Array.isArray(exercise?.concepts) ? exercise.concepts.slice(0, 2) : [];
+  if (concepts.length) {
+    return `Зосередьтеся на логіці, пов'язаній з поняттями ${concepts.join(" та ")}.`;
+  }
+
+  return "Перевірте саме ту гілку логіки, яка обробляє цей сценарій.";
+}
+
+function buildConcreteNextStep({ exercise, runResult }) {
+  const failure = runResult?.failures?.[0];
+
+  if (!failure) {
+    return "Звірте поточний код із найпростішим прикладом. Після цього ще раз запустіть тести й перевірте, що повертає функція.";
+  }
+
+  return `Спочатку окремо програйте сценарій «${failure.name}»: для ${describeFailureInput(failure)} функція має повернути ${formatReadableValue(failure.expected)}, а зараз повертає ${formatReadableValue(failure.actual)}. ${inferLogicFocus({
+    exercise,
+    failure
+  })}`;
+}
+
+function buildTargetedNextStep({ exercise, runResult }) {
+  const failure = runResult?.failures?.[0];
+
+  if (!failure) {
+    return "Розкладіть алгоритм на два кроки: що ви читаєте з вхідних даних і що саме повертаєте. Потім перевірте, де результат втрачається.";
+  }
+
+  return `У сценарії «${failure.name}» збій уже локалізований: для ${describeFailureInput(failure)} потрібно отримати ${formatReadableValue(failure.expected)}, а не ${formatReadableValue(failure.actual)}. Перевірте саме той фрагмент логіки, який обробляє цей тип даних, і звірте проміжне значення перед return.`;
+}
+
+function normalizeTextToken(text) {
+  return String(text ?? "")
+    .toLowerCase()
+    .replaceAll(/[«»"'`]/g, "")
+    .trim();
+}
+
+function includesFailureReference(text, failure) {
+  if (!failure) {
+    return true;
+  }
+
+  const normalizedText = normalizeTextToken(text);
+  const candidates = [
+    failure.name,
+    formatReadableValue(failure.expected),
+    formatReadableValue(failure.actual)
+  ]
+    .filter(Boolean)
+    .map((value) => normalizeTextToken(value));
+
+  return candidates.some((candidate) => candidate && normalizedText.includes(candidate));
+}
+
+function isOverlyGenericFeedbackText(text) {
+  const normalizedText = normalizeTextToken(text);
+
+  if (!normalizedText) {
+    return true;
+  }
+
+  return [
+    /повтори\s+(test|тест)\s*\d+/u,
+    /test\d+/u,
+    /навчайся/u,
+    /працюй\s+з/u,
+    /попрацюй\s+з/u
+  ].some((pattern) => pattern.test(normalizedText));
+}
+
+function coerceFeedbackSpecificity(raw, fallback, runResult, policy) {
+  if (
+    !runResult?.failures?.length ||
+    runResult?.allPassed ||
+    runResult?.syntaxError ||
+    policy?.action === "concept_explanation"
+  ) {
+    return raw;
+  }
+
+  const failure = runResult.failures[0];
+
+  return {
+    ...raw,
+    summary:
+      includesFailureReference(raw.summary, failure) && !isOverlyGenericFeedbackText(raw.summary)
+        ? raw.summary
+        : fallback.summary,
+    nextStep:
+      includesFailureReference(raw.nextStep, failure) && !isOverlyGenericFeedbackText(raw.nextStep)
+        ? raw.nextStep
+        : fallback.nextStep
+  };
 }
 
 function buildFallbackFeedback({ exercise, runResult, userState, policy, studentRequest }) {
@@ -59,8 +222,7 @@ function buildFallbackFeedback({ exercise, runResult, userState, policy, student
   if (policy.action === "targeted_hint") {
     return {
       summary: formatFailure(runResult?.failures?.[0]),
-      nextStep:
-        "Подумайте, яке проміжне значення має оновлюватися на кожній ітерації. Сконцентруйтеся на умові або накопиченні результату.",
+      nextStep: buildTargetedNextStep({ exercise, runResult }),
       tutorStyle: "targeted",
       revealLevel: "medium"
     };
@@ -68,50 +230,78 @@ function buildFallbackFeedback({ exercise, runResult, userState, policy, student
 
   return {
     summary: formatFailure(runResult?.failures?.[0]),
-    nextStep:
-      "Зробіть один невеликий крок: опишіть, що саме має повернути функція для найпростішого прикладу, і звірте це з кодом.",
+    nextStep: buildConcreteNextStep({ exercise, runResult }),
     tutorStyle: "minimal",
     revealLevel: "low"
   };
 }
 
-function buildFeedbackPrompt({ exercise, runResult, userState, policy, studentRequest }) {
+function buildFeedbackPrompt({ exercise, runResult, userState, policy, studentRequest, fallback }) {
+  const firstFailure = runResult?.failures?.[0]
+    ? formatFailure(runResult.failures[0])
+    : "none";
+  const recentErrors =
+    Array.isArray(userState?.errorHistory) && userState.errorHistory.length
+      ? userState.errorHistory
+          .map((entry) => entry?.detail)
+          .filter(Boolean)
+          .slice(0, 3)
+          .join(", ")
+      : "none";
+
   return `
 Ти - доброзичливий репетитор з JavaScript для початківця.
-Поверни лише JSON-об'єкт без пояснювального тексту поза JSON.
+Поверни тільки один JSON-об'єкт і не додавай жодних інших ключів.
 
-Обмеження:
+Дозволені ключі відповіді:
+- summary
+- nextStep
+- tutorStyle
+- revealLevel
+
+Заборонено повертати ключі exercise, runResult, userState, policy, studentRequest.
+
+Правила:
 - не давай повний розв'язок;
 - не вставляй завершену функцію;
-- дай короткий адаптивний фідбек українською;
-- врахуй attemptsCount і тип дії policy.action;
-- якщо є помилка, орієнтуйся на перший збій;
-- якщо студент просить пояснення, дай концептуальне пояснення без готового коду.
+- якщо є збій тесту, обов'язково назви перший провалений сценарій;
+- якщо є збій тесту, обов'язково скажи, що очікувалося і що фактично отримано;
+- summary має бути 1-2 конкретними реченнями українською;
+- nextStep має бути рівно 2 конкретними реченнями українською;
+- tutorStyle має бути одним із: minimal, targeted, conceptual, celebration, syntax;
+- revealLevel має бути одним із: none, low, medium.
+- не використовуй загальні фрази на кшталт «попрацюй з об'єктами», «повтори test2» або «ще раз спробуй» без пояснення, що саме перевірити.
 
-Контекст:
-${JSON.stringify(
-    {
-      exercise: {
-        title: exercise.title,
-        topic: exercise.topic,
-        functionName: exercise.functionName,
-        concepts: exercise.concepts
-      },
-      runResult,
-      userState,
-      policy,
-      studentRequest
-    },
-    null,
-    2
-  )}
+Контекст вправи:
+- title: ${formatPromptValue(exercise?.title)}
+- topic: ${formatPromptValue(exercise?.topic)}
+- functionName: ${formatPromptValue(exercise?.functionName)}
+- concepts: ${formatPromptValue(exercise?.concepts)}
 
-Очікувані поля:
+Контекст результату:
+- allPassed: ${formatPromptValue(runResult?.allPassed)}
+- passedCount: ${formatPromptValue(runResult?.passedCount)}
+- totalCount: ${formatPromptValue(runResult?.totalCount)}
+- syntaxError: ${runResult?.syntaxError ?? "null"}
+- firstFailure: ${firstFailure}
+
+Контекст студента:
+- attemptsCount: ${formatPromptValue(userState?.attemptsCount)}
+- recentErrors: ${recentErrors}
+- confidence: ${formatPromptValue(userState?.confidence)}
+- knowledgeLevel: ${formatPromptValue(userState?.knowledgeLevel)}
+- lastAction: ${formatPromptValue(userState?.lastAction)}
+
+Контекст політики:
+- policy.action: ${formatPromptValue(policy?.action)}
+- studentRequest: ${formatPromptValue(studentRequest, "empty")}
+
+Поверни відповідь точно в такій формі:
 {
-  "summary": "string",
-  "nextStep": "string",
-  "tutorStyle": "minimal | targeted | conceptual | celebration | syntax",
-  "revealLevel": "none | low | medium"
+  "summary": "короткий рядок",
+  "nextStep": "короткий рядок",
+  "tutorStyle": "${fallback.tutorStyle}",
+  "revealLevel": "${fallback.revealLevel}"
 }
 `.trim();
 }
@@ -123,7 +313,8 @@ function normalizeFeedback(raw, fallback, meta) {
     nextStep: typeof raw.nextStep === "string" ? raw.nextStep : fallback.nextStep,
     tutorStyle: typeof raw.tutorStyle === "string" ? raw.tutorStyle : fallback.tutorStyle,
     revealLevel: typeof raw.revealLevel === "string" ? raw.revealLevel : fallback.revealLevel,
-    source: normalizedSourceMeta.source
+    source: normalizedSourceMeta.source,
+    reason: normalizedSourceMeta.reason
   };
 }
 
@@ -145,16 +336,22 @@ export class FeedbackEvaluator {
       runResult,
       userState,
       policy,
-      studentRequest
+      studentRequest,
+      fallback
     });
     const result = await this.ollamaClient.generateJson({
       prompt,
       fallback,
-      validate: validateFeedbackPayload
+      validate: validateFeedbackPayload,
+      temperature: 0,
+      maxRetries: 0
     });
 
     const validation = validateFeedbackPayload(result.data);
-    const safeData = validation.ok ? result.data : fallback;
+    const normalizedData = validation.ok
+      ? coerceFeedbackSpecificity(result.data, fallback, runResult, policy)
+      : fallback;
+    const safeData = validation.ok ? normalizedData : fallback;
     const safeMeta = validation.ok
       ? result.meta
       : {

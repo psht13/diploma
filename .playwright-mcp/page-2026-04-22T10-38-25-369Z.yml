@@ -1,0 +1,213 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: АІНС / JavaScript
+      - heading "Діалоговий агент-репетитор для базового JavaScript" [level=1] [ref=e6]
+      - paragraph [ref=e7]: "Практичний сценарій навчальної взаємодії: вправа, розв'язок, перевірка, пояснення та адаптивний фідбек."
+      - generic "Ключові можливості прототипу" [ref=e8]:
+        - generic [ref=e9]: Генерація вправи
+        - generic [ref=e10]: Перевірка в Web Worker
+        - generic [ref=e11]: Режим пояснення
+        - generic [ref=e12]: Пам'ять сесії
+    - complementary [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - paragraph [ref=e16]: Статус локальної моделі
+          - heading "Ollama / Llama" [level=2] [ref=e17]
+        - generic [ref=e18]: Готова
+      - generic [ref=e19]:
+        - paragraph [ref=e20]: Підключено до Ollama, модель llama3.1:8b доступна
+        - paragraph [ref=e21]: Локальна модель готова до генерації вправи та формування адаптивного фідбеку.
+      - generic [ref=e22]:
+        - generic [ref=e23]: Модель Ollama
+        - textbox "Модель Ollama" [ref=e24]: llama3.1:8b
+      - button "Оновити статус" [ref=e26] [cursor=pointer]
+  - main [ref=e27]:
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]: Крок 1
+        - generic [ref=e31]:
+          - heading "Згенерувати вправу" [level=2] [ref=e32]
+          - paragraph [ref=e33]: Локальна модель формує структуровану вправу. Якщо це неможливо, система переходить у резервний режим без зміни сценарію.
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e36]: Тема
+          - combobox "Тема" [ref=e37]:
+            - option "Функції" [selected]
+            - option "Масиви"
+            - option "Рядки"
+            - option "Об'єкти"
+        - generic [ref=e38]:
+          - generic [ref=e39]: Складність
+          - combobox "Складність" [ref=e40]:
+            - option "Базова" [selected]
+            - option "Базова+"
+      - button "Згенерувати вправу" [disabled] [ref=e167]
+      - article [ref=e43]:
+        - generic [ref=e168]:
+          - generic [ref=e169]:
+            - paragraph [ref=e170]: Поточна вправа
+            - heading "Написання функції з одним аргументом" [level=3] [ref=e171]
+          - generic [ref=e172]:
+            - generic [ref=e173]: Локальна модель
+            - generic [ref=e174]: Функції
+            - generic [ref=e175]: Базова
+        - generic [ref=e176]:
+          - generic [ref=e177]:
+            - paragraph [ref=e178]: Формулювання задачі
+            - paragraph [ref=e179]: Напишіть функцію, яка приймає одне число і повертає його квадрат.
+          - generic [ref=e180]:
+            - paragraph [ref=e181]: Сигнатура функції
+            - paragraph [ref=e182]:
+              - text: "Очікувана функція:"
+              - code [ref=e183]: squareNumber
+            - paragraph [ref=e184]: Початковий код винесено окремо, щоб студент міг одразу почати розв'язок.
+          - generic [ref=e185]:
+            - paragraph [ref=e186]: Початковий код
+            - code [ref=e188]: "// Напишіть свій код тут function functionName(arg) { // Тіло функції }"
+          - generic [ref=e189]:
+            - paragraph [ref=e190]: Критерії оцінювання
+            - list [ref=e191]:
+              - listitem [ref=e192]: коректність роботи функції
+              - listitem [ref=e193]: правильність використання аргументів
+          - generic [ref=e194]:
+            - paragraph [ref=e195]: Поняття
+            - generic [ref=e196]:
+              - generic [ref=e197]: функції
+              - generic [ref=e198]: аргументи
+          - generic [ref=e199]:
+            - paragraph [ref=e200]: Перевірочні тести
+            - generic [ref=e201]:
+              - article [ref=e202]:
+                - paragraph [ref=e203]: Тестування з одним числом
+                - paragraph [ref=e204]:
+                  - text: "Аргументи:"
+                  - code [ref=e205]: "[5]"
+                  - text: "Очікуване значення:"
+                  - code [ref=e206]: "25"
+              - article [ref=e207]:
+                - paragraph [ref=e208]: Тестування зі знаком мінус
+                - paragraph [ref=e209]:
+                  - text: "Аргументи:"
+                  - code [ref=e210]: "[-3]"
+                  - text: "Очікуване значення:"
+                  - code [ref=e211]: "9"
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e50]: Крок 2
+        - generic [ref=e51]:
+          - heading "Розв'язок студента" [level=2] [ref=e52]
+          - paragraph [ref=e53]: Код виконується лише у клієнтському ізольованому середовищі без зміни архітектури системи.
+      - generic [ref=e54]:
+        - generic [ref=e55]: Код
+        - textbox "Код" [ref=e56]: "function squareNumber(arg) { return arg * arg; }"
+      - generic [ref=e57]:
+        - generic [ref=e58]: Питання до репетитора
+        - textbox "Питання до репетитора" [ref=e59]:
+          - /placeholder: "Наприклад: Поясни, чому тут потрібен цикл."
+      - generic [ref=e60]:
+        - button "Виконується перевірка..." [disabled] [ref=e251]
+        - button "Пояснити тему" [disabled] [ref=e62]
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e65]: Крок 3
+        - generic [ref=e66]:
+          - heading "Адаптивний фідбек" [level=2] [ref=e67]
+          - paragraph [ref=e68]: Панель узагальнює стан взаємодії, результати перевірки та наступний педагогічний крок агента.
+      - generic [ref=e69]:
+        - generic [ref=e252]:
+          - generic [ref=e253]:
+            - paragraph [ref=e254]: Стан взаємодії
+            - heading "Агент формує відповідь..." [level=3] [ref=e255]
+          - generic [ref=e256]: Виконується
+        - generic [ref=e259]:
+          - paragraph [ref=e260]: Триває виконання
+          - paragraph [ref=e261]: Агент формує відповідь...
+          - paragraph [ref=e262]: Рівень підказки обирається відповідно до результатів перевірки та історії попередніх спроб.
+      - generic [ref=e76]:
+        - generic [ref=e263]:
+          - generic [ref=e264]:
+            - paragraph [ref=e265]: Результати перевірки
+            - heading "Усі перевірочні тести пройдено" [level=3] [ref=e266]
+            - paragraph [ref=e267]: Перевірку завершено за 63 мс.
+          - generic [ref=e268]: Успіх
+        - generic [ref=e269]:
+          - generic [ref=e270]:
+            - text: Пройдено
+            - strong [ref=e271]: "2"
+          - generic [ref=e272]:
+            - text: Потребує уваги
+            - strong [ref=e273]: "0"
+          - generic [ref=e274]:
+            - text: Усього тестів
+            - strong [ref=e275]: "2"
+        - list [ref=e276]:
+          - listitem [ref=e277]:
+            - generic [ref=e278]:
+              - paragraph [ref=e279]: Тестування з одним числом
+              - paragraph [ref=e280]: Сценарій пройдено без зауважень.
+            - generic [ref=e281]: Пройдено
+          - listitem [ref=e282]:
+            - generic [ref=e283]:
+              - paragraph [ref=e284]: Тестування зі знаком мінус
+              - paragraph [ref=e285]: Сценарій пройдено без зауважень.
+            - generic [ref=e286]: Пройдено
+        - paragraph [ref=e287]:
+          - strong [ref=e288]: "Наступний крок:"
+          - text: Спробуйте коротко пояснити алгоритм власними словами або переходьте до нової вправи.
+      - generic [ref=e291]:
+        - paragraph [ref=e292]: Триває виконання
+        - paragraph [ref=e293]: Агент формує відповідь...
+        - paragraph [ref=e294]: Після аналізу першого збою й педагогічної політики тут з'явиться короткий наступний крок.
+    - generic [ref=e86]:
+      - generic [ref=e87]:
+        - generic [ref=e88]: Крок 4
+        - generic [ref=e89]:
+          - heading "Пам'ять сесії та діалог" [level=2] [ref=e90]
+          - paragraph [ref=e91]: Показано лише ту частину стану, яка фактично зберігається в прототипі й впливає на подальший репетиторський сценарій.
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - heading "Модель стану студента" [level=3] [ref=e95]
+            - paragraph [ref=e96]: Поточна тема, впевненість, історія помилок і остання педагогічна дія.
+          - generic [ref=e97]:
+            - article [ref=e226]:
+              - paragraph [ref=e227]: Рівень знань
+              - paragraph [ref=e228]: початковий
+            - article [ref=e229]:
+              - paragraph [ref=e230]: Історія помилок
+              - paragraph [ref=e231]: ще не зафіксовано
+            - article [ref=e232]:
+              - paragraph [ref=e233]: Впевненість
+              - paragraph [ref=e234]: середня
+            - article [ref=e235]:
+              - paragraph [ref=e236]: Поточна тема
+              - paragraph [ref=e237]: Функції
+            - article [ref=e238]:
+              - paragraph [ref=e239]: Кількість спроб
+              - paragraph [ref=e240]: "0"
+            - article [ref=e241]:
+              - paragraph [ref=e242]: Остання дія
+              - paragraph [ref=e243]: вправу підготовлено
+        - generic [ref=e116]:
+          - generic [ref=e117]:
+            - heading "Діалог" [level=3] [ref=e118]
+            - paragraph [ref=e119]: Тут зберігається стислий перебіг взаємодії між студентом і репетитором.
+          - generic [ref=e120]:
+            - article [ref=e295]:
+              - generic [ref=e296]:
+                - paragraph [ref=e297]: Репетитор
+                - paragraph [ref=e298]: 13:36
+              - paragraph [ref=e301]: Підготовлено вправу «Написання функції з одним аргументом». Спробуйте спочатку самостійно реалізувати функцію.
+            - article [ref=e302]:
+              - generic [ref=e303]:
+                - paragraph [ref=e304]: Студент
+                - paragraph [ref=e305]: 13:37
+              - paragraph [ref=e308]: Запущено перевірку. Спроба 1.
+            - article [ref=e309]:
+              - paragraph [ref=e311]: Репетитор
+              - generic [ref=e315]:
+                - paragraph [ref=e316]: Триває виконання
+                - paragraph [ref=e317]: Агент формує відповідь...
+                - paragraph [ref=e318]: Рівень підказки обирається відповідно до результатів перевірки та історії попередніх спроб.
+      - button "Експортувати сесію JSON" [disabled] [ref=e126]

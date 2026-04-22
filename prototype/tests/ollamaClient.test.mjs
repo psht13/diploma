@@ -95,3 +95,41 @@ test("OllamaClient returns fallback after repeated schema mismatch", async () =>
     global.fetch = originalFetch;
   }
 });
+
+test("OllamaClient getStatus requires an exact tagged model match", async () => {
+  const originalFetch = global.fetch;
+  let phase = 0;
+
+  global.fetch = async () => {
+    phase += 1;
+
+    return {
+      ok: true,
+      async json() {
+        return phase === 1
+          ? { models: [{ name: "llama3.1:8b-instruct" }] }
+          : { models: [{ name: "llama3.1:8b" }] };
+      }
+    };
+  };
+
+  try {
+    const client = new OllamaClient({
+      baseUrl: "http://example.test",
+      model: "llama3.1:8b"
+    });
+
+    const mismatched = await client.getStatus();
+    const exact = await client.getStatus();
+
+    assert.equal(mismatched.available, true);
+    assert.equal(mismatched.hasTargetModel, false);
+    assert.match(mismatched.message, /не знайдена/u);
+
+    assert.equal(exact.available, true);
+    assert.equal(exact.hasTargetModel, true);
+    assert.match(exact.message, /доступна/u);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});

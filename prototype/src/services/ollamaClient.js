@@ -20,6 +20,20 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 4000) {
   }
 }
 
+function hasRequestedModel(modelNames, requestedModel) {
+  const normalizedRequested = requestedModel?.trim();
+
+  if (!normalizedRequested) {
+    return false;
+  }
+
+  if (normalizedRequested.includes(":")) {
+    return modelNames.includes(normalizedRequested);
+  }
+
+  return modelNames.includes(normalizedRequested) || modelNames.includes(`${normalizedRequested}:latest`);
+}
+
 export class OllamaClient {
   constructor({ baseUrl = OLLAMA_BASE_URL, model = DEFAULT_MODEL } = {}) {
     this.baseUrl = baseUrl;
@@ -40,7 +54,7 @@ export class OllamaClient {
 
       const data = await response.json();
       const modelNames = Array.isArray(data.models) ? data.models.map((item) => item.name) : [];
-      const hasTargetModel = modelNames.some((name) => name.startsWith(this.model));
+      const hasTargetModel = hasRequestedModel(modelNames, this.model);
       const message = hasTargetModel
         ? `Підключено до Ollama, модель ${this.model} доступна`
         : `Ollama доступна, але модель ${this.model} не знайдена локально`;

@@ -1,0 +1,125 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: АІНС / JavaScript
+      - heading "Діалоговий агент-репетитор для базового JavaScript" [level=1] [ref=e6]
+      - paragraph [ref=e7]: "Практичний сценарій навчальної взаємодії: вправа, розв'язок, перевірка, пояснення та адаптивний фідбек."
+      - generic "Ключові можливості прототипу" [ref=e8]:
+        - generic [ref=e9]: Генерація вправи
+        - generic [ref=e10]: Перевірка в Web Worker
+        - generic [ref=e11]: Режим пояснення
+        - generic [ref=e12]: Пам'ять сесії
+    - complementary [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - paragraph [ref=e16]: Статус локальної моделі
+          - heading "Ollama / Llama" [level=2] [ref=e17]
+        - generic [ref=e18]: Готова
+      - generic [ref=e19]:
+        - paragraph [ref=e20]: Підключено до Ollama, модель llama3.1:8b доступна
+        - paragraph [ref=e21]: Локальна модель готова до генерації вправи та формування адаптивного фідбеку.
+      - generic [ref=e22]:
+        - generic [ref=e23]: Модель Ollama
+        - textbox "Модель Ollama" [ref=e24]: llama3.1:8b
+      - button "Оновити статус" [ref=e26] [cursor=pointer]
+  - main [ref=e27]:
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]: Крок 1
+        - generic [ref=e31]:
+          - heading "Згенерувати вправу" [level=2] [ref=e32]
+          - paragraph [ref=e33]: Локальна модель формує структуровану вправу. Якщо це неможливо, система переходить у резервний режим без зміни сценарію.
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e36]: Тема
+          - combobox "Тема" [ref=e37]:
+            - option "Функції" [selected]
+            - option "Масиви"
+            - option "Рядки"
+            - option "Об'єкти"
+        - generic [ref=e38]:
+          - generic [ref=e39]: Складність
+          - combobox "Складність" [ref=e40]:
+            - option "Базова" [selected]
+            - option "Базова+"
+      - button "Згенерувати вправу" [ref=e42] [cursor=pointer]
+      - article [ref=e43]:
+        - generic [ref=e44]:
+          - paragraph [ref=e45]: Вправа
+          - heading "Вправа ще не підготовлена" [level=3] [ref=e46]
+          - paragraph [ref=e47]: Оберіть тему й складність, а потім згенеруйте вправу. Після цього тут з'являться умова, код і перевірочні тести.
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e50]: Крок 2
+        - generic [ref=e51]:
+          - heading "Розв'язок студента" [level=2] [ref=e52]
+          - paragraph [ref=e53]: Код виконується лише у клієнтському ізольованому середовищі без зміни архітектури системи.
+      - generic [ref=e54]:
+        - generic [ref=e55]: Код
+        - textbox "Код" [ref=e56]
+      - generic [ref=e57]:
+        - generic [ref=e58]: Питання до репетитора
+        - textbox "Питання до репетитора" [ref=e59]:
+          - /placeholder: "Наприклад: Поясни, чому тут потрібен цикл."
+      - generic [ref=e60]:
+        - button "Запустити тести" [ref=e61] [cursor=pointer]
+        - button "Пояснити тему" [ref=e62] [cursor=pointer]
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e65]: Крок 3
+        - generic [ref=e66]:
+          - heading "Адаптивний фідбек" [level=2] [ref=e67]
+          - paragraph [ref=e68]: Панель узагальнює стан взаємодії, результати перевірки та наступний педагогічний крок агента.
+      - generic [ref=e70]:
+        - generic [ref=e71]:
+          - paragraph [ref=e72]: Стан взаємодії
+          - heading "Система готова до взаємодії" [level=3] [ref=e73]
+          - paragraph [ref=e74]: Основні дії доступні. Під час очікування інтерфейс завжди показує явний поточний стан.
+        - generic [ref=e75]: Готово
+      - generic [ref=e77]:
+        - paragraph [ref=e78]: Результати перевірки
+        - heading "Запуск тестів ще не виконувався" [level=3] [ref=e79]
+        - paragraph [ref=e80]: Після першої перевірки тут з'являться підсумок, проходження по тестах і рекомендований наступний крок.
+      - generic [ref=e82]:
+        - paragraph [ref=e83]: Зворотний зв'язок
+        - heading "Пояснення або фідбек ще не сформовано" [level=3] [ref=e84]
+        - paragraph [ref=e85]: Після перевірки або натискання «Пояснити тему» тут з'явиться відповідь агента з коротким поясненням і наступним кроком.
+    - generic [ref=e86]:
+      - generic [ref=e87]:
+        - generic [ref=e88]: Крок 4
+        - generic [ref=e89]:
+          - heading "Пам'ять сесії та діалог" [level=2] [ref=e90]
+          - paragraph [ref=e91]: Показано лише ту частину стану, яка фактично зберігається в прототипі й впливає на подальший репетиторський сценарій.
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - heading "Модель стану студента" [level=3] [ref=e95]
+            - paragraph [ref=e96]: Поточна тема, впевненість, історія помилок і остання педагогічна дія.
+          - generic [ref=e97]:
+            - article [ref=e98]:
+              - paragraph [ref=e99]: Рівень знань
+              - paragraph [ref=e100]: початковий
+            - article [ref=e101]:
+              - paragraph [ref=e102]: Історія помилок
+              - paragraph [ref=e103]: ще не зафіксовано
+            - article [ref=e104]:
+              - paragraph [ref=e105]: Впевненість
+              - paragraph [ref=e106]: середня
+            - article [ref=e107]:
+              - paragraph [ref=e108]: Поточна тема
+              - paragraph [ref=e109]: ще не обрано
+            - article [ref=e110]:
+              - paragraph [ref=e111]: Кількість спроб
+              - paragraph [ref=e112]: "0"
+            - article [ref=e113]:
+              - paragraph [ref=e114]: Остання дія
+              - paragraph [ref=e115]: очікування
+        - generic [ref=e116]:
+          - generic [ref=e117]:
+            - heading "Діалог" [level=3] [ref=e118]
+            - paragraph [ref=e119]: Тут зберігається стислий перебіг взаємодії між студентом і репетитором.
+          - generic [ref=e121]:
+            - paragraph [ref=e122]: Діалог
+            - heading "Діалог ще не розпочато" [level=3] [ref=e123]
+            - paragraph [ref=e124]: Після підготовки вправи тут з'являться повідомлення студента й репетитора, а також проміжні стани очікування.
+      - button "Експортувати сесію JSON" [ref=e126] [cursor=pointer]

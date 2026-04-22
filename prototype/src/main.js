@@ -185,6 +185,30 @@ function revealLevelLabel(value) {
   return REVEAL_LEVEL_LABELS[value] || "Без уточнення";
 }
 
+function feedbackDiagnosticLabel(reason) {
+  if (!reason) {
+    return "";
+  }
+
+  if (reason.includes("Schema mismatch")) {
+    return "Резервний режим увімкнено, бо модель повернула JSON не за очікуваною схемою.";
+  }
+
+  if (reason.includes("valid JSON")) {
+    return "Резервний режим увімкнено, бо модель не повернула валідний JSON.";
+  }
+
+  if (reason.includes("fetch failed")) {
+    return "Резервний режим увімкнено, бо не вдалося звернутися до локальної Ollama.";
+  }
+
+  if (reason.includes("HTTP")) {
+    return "Резервний режим увімкнено, бо Ollama повернула помилку HTTP.";
+  }
+
+  return `Резервний режим увімкнено: ${reason}`;
+}
+
 function lastActionLabel(value) {
   return LAST_ACTION_LABELS[value] || value || "очікування";
 }
@@ -542,6 +566,8 @@ function renderFeedback(feedback) {
   }
 
   ui.feedbackCard.className = "feedback-card reveal";
+  const diagnosticText =
+    feedback.source === "fallback" ? feedbackDiagnosticLabel(feedback.reason) : "";
   ui.feedbackCard.innerHTML = `
     <div class="feedback-head">
       <div>
@@ -567,6 +593,12 @@ function renderFeedback(feedback) {
       <span class="style-pill">${escapeHtml(feedbackStyleLabel(feedback.tutorStyle))}</span>
       <span class="style-pill">${escapeHtml(revealLevelLabel(feedback.revealLevel))}</span>
     </div>
+
+    ${
+      diagnosticText
+        ? `<p class="feedback-diagnostic">${escapeHtml(diagnosticText)}</p>`
+        : ""
+    }
   `;
 }
 

@@ -75,3 +75,40 @@ for (const { label, value } of invalidPayloads) {
     assert.ok(feedback.nextStep.length > 0);
   });
 }
+
+test("ExerciseGenerator rewrites generic test names into meaningful labels", async () => {
+  const generator = new ExerciseGenerator({
+    ollamaClient: {
+      async generateJson() {
+        return {
+          data: {
+            id: "objects-most-values-key",
+            topic: "Об'єкти",
+            title: "Пошук ключа з найбільшою кількістю значень",
+            prompt: "Повернути ключ з найбільшою кількістю значень в об'єкті.",
+            starterCode: "function mostValuesKey(obj) {}",
+            functionName: "mostValuesKey",
+            concepts: ["об'єкти", "цикли"],
+            rubric: ["коректність", "читабельність"],
+            tests: [
+              { name: "test1", args: [{ a: [1, 2], b: [3] }], expected: "a" },
+              { name: "scenario2", args: [{}], expected: null }
+            ]
+          },
+          meta: { source: "ollama" }
+        };
+      }
+    }
+  });
+
+  const exercise = await generator.generate({
+    topicKey: "objects",
+    difficulty: "basic"
+  });
+
+  assert.equal(exercise.source, "ollama");
+  assert.notEqual(exercise.tests[0].name, "test1");
+  assert.notEqual(exercise.tests[1].name, "scenario2");
+  assert.match(exercise.tests[0].name, /повертає|об'єкта/u);
+  assert.match(exercise.tests[1].name, /повертає|null/u);
+});
